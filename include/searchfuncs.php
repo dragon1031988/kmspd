@@ -150,7 +150,7 @@ error_reporting(E_ALL ^ E_NOTICE);
 		global $length_of_link_desc,$mysql_table_prefix, $show_meta_description, $merge_site_results, $stem_words, $did_you_mean_enabled ;
 		
 		$possible_to_find = 1;
-		$result = mysql_query("select domain_id from ".$mysql_table_prefix."domains where domain = '$domain'");
+		$result = mysql_query($GLOBALS['connect'], "select domain_id from ".$mysql_table_prefix."domains where domain = '$domain'");
 		if (mysql_num_rows($result)> 0) {
 			$thisrow = mysql_fetch_array($result);
 			$domain_qry = "and domain = ".$thisrow[0];

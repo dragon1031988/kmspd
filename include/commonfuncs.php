@@ -18,17 +18,15 @@
 	 */
 	function sql_fetch_all($query) {
 		$result = mysqli_query($GLOBALS['connect'], $query);		
-		if(mysqli_connect_errno) {
-			print $query.'<br>'.mysqli_connect_errno();
+		if ( mysqli_connect_errno() ) {
+			print $query.'<br>'. mysqli_connect_errno();
 		} else {
-			while($row=mysql_fetch_array($result)) {
+			while($row=mysqli_fetch_array($result)) {
 				$data[]=$row;
 			}	
 		}		
 		return $data;
 	}
-
-
 
 	/*
 	Removes duplicate elements from an array
@@ -54,8 +52,8 @@
 	function get_cats($parent) {
 		global $mysql_table_prefix;
 		$query = "SELECT * FROM ".$mysql_table_prefix."categories WHERE parent_num=$parent";
-		echo mysql_error();
-		$result = mysql_query($query);
+		echo mysqli_connect_errno();
+		$result = mysqli_query($GLOBALS['connect'], $query);
 		$arr[] = $parent;
 		if (mysql_num_rows($result) <> '') {
 			while ($row = mysql_fetch_array($result)) {
