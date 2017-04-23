@@ -2,14 +2,14 @@
 include "auth.php";
 $backup_path="./backup/";
 
-$stats  = mysql_query("SHOW TABLE STATUS FROM $database LIKE '$mysql_table_prefix%'");
+$stats  = mysqli_query($GLOBALS['connect'], "SHOW TABLE STATUS FROM $database LIKE '$mysql_table_prefix%'");
 $numtables = mysql_num_rows($stats);
 $starttime=microtime();
 if($send2=="Optimize"){
 	$i = 0;  
 	while($i < $numtables) {
 		if (isset($tables[$i])) {
-		  mysql_query("OPTIMIZE TABLE ".$tables[$i]);
+		  mysqli_query($GLOBALS['connect'], "OPTIMIZE TABLE ".$tables[$i]);
 
 			}
 		$i++;
@@ -30,23 +30,23 @@ if($send2=="Optimize"){
 
 if (!eregi("/restore\.",$_SERVER['PHP_SELF'])) {
 	$cur_time=date("Y-m-d H:i");
-	$i = 0;  
+	$i = 0;
 	$fp = gzopen ($backup_path.$filename,"a");
-	while($i < $numtables) { 
+	while($i < $numtables) {
            if (isset($tables[$i])) {
 	         	 get_def($database,$tables[$i],$fp);
 	           if (!isset($structonly) || $structonly!="Yes") {
 	             get_content($database,$tables[$i],$fp);
-	       	   }	      
+	       	   }
 	         }
 	      $i++;
-	}	
+	}
 	   gzwrite ($fp,"# Valid end of backup from Sphider backup\n");
      gzclose ($fp);
 }
 }
 function get_def($database,$table,$fp) {
- 
+
     $def = "";
     $def .= "DROP TABLE IF EXISTS $table;#%%\n";
     $def .= "CREATE TABLE $table (\n";
@@ -81,11 +81,11 @@ function get_def($database,$table,$fp) {
 
 function get_content($database,$table,$fp) {
      $result = mysql_db_query($database, "SELECT * FROM $table") or die("Cannot get content of table");
-          
+
      while($row = mysql_fetch_row($result)) {
-         
+
          $insert = "INSERT INTO $table VALUES (";
-        
+
          for($j=0; $j<mysql_num_fields($result);$j++) {
             if(!isset($row[$j])) $insert .= "NULL,";
             elseif(isset($row[$j])) $insert .= "'".addslashes($row[$j])."',";
@@ -94,11 +94,11 @@ function get_content($database,$table,$fp) {
          $insert  = ereg_replace(",$","",$insert);
          $insert .= ");#%%\n";
          gzwrite ($fp,$insert);
-        
+
      }
-     
+
      gzwrite ($fp,"\n\n");
-     
+
 }
 function diff_microtime($mt_old,$mt_new)
 {

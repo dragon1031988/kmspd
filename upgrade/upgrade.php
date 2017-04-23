@@ -4,7 +4,7 @@ set_time_limit (0);
 $settings_dir = "../settings";
 include "$settings_dir/database.php";
 
-$result = mysql_query("SHOW TABLES");
+$result = mysqli_query($GLOBALS['connect'], "SHOW TABLES");
 
 if (!$result) {
 	echo "DB Error, could not list tables\n";
@@ -26,7 +26,7 @@ if ($old == 0) {
 $error = 0;
 for ($i=0;$i<=15; $i++) {
 	$char = dechex($i);
-	mysql_query("create table `".$mysql_table_prefix."link_keyword$char` (
+	mysqli_query($GLOBALS['connect'], "create table `".$mysql_table_prefix."link_keyword$char` (
 		link_id int not null,
 		keyword_id int not null,
 		weight int(3),
@@ -36,37 +36,37 @@ for ($i=0;$i<=15; $i++) {
 
 	if (mysql_errno() > 0) {
 		print "Error: ";
-		print mysql_error();
+		print mysqli_error($GLOBALS['connect']);
 		print "<br>\n";
 		$error += mysql_errno();
 	}
 }
 
-mysql_query("create table `".$mysql_table_prefix."domains` (
-	domain_id int auto_increment primary key not null,	
+mysqli_query($GLOBALS['connect'], "create table `".$mysql_table_prefix."domains` (
+	domain_id int auto_increment primary key not null,
 	domain varchar(255))");
 
 if (mysql_errno() > 0) {
 	print "Error: ";
-	print mysql_error();
+	print mysqli_error($GLOBALS['connect']);
 	print "<br>\n";
 	$error += mysql_errno();
 }
 
 
-mysql_query("alter table `".$mysql_table_prefix."links` add key md5key(md5sum(16))");
+mysqli_query($GLOBALS['connect'], "alter table `".$mysql_table_prefix."links` add key md5key(md5sum(16))");
 if (mysql_errno() > 0) {
 	print "Error: ";
-	print mysql_error();
+	print mysqli_error($GLOBALS['connect']);
 	print "<br>\n";
 	$error += mysql_errno();
 }
 
-mysql_query("alter table `".$mysql_table_prefix."query_log` add key querykey(query)");
+mysqli_query($GLOBALS['connect'], "alter table `".$mysql_table_prefix."query_log` add key querykey(query)");
 
 if (mysql_errno() > 0) {
 	print "Error: ";
-	print mysql_error();
+	print mysqli_error($GLOBALS['connect']);
 	print "<br>\n";
 	$error += mysql_errno();
 }
@@ -74,12 +74,12 @@ if (mysql_errno() > 0) {
 if ($error >0) {
 	print "<b>Creating tables failed. Consult the above error messages.</b>";
 	die();
-} 
+}
 
 
 $query = "select link_id, keyword_id, weight from ".$mysql_table_prefix."link_keyword";
-$result = mysql_query($query);
-echo mysql_error();
+$result = mysqli_query($GLOBALS['connect'], $query);
+echo mysqli_error($GLOBALS['connect']);
 while ($row=mysql_fetch_array($result)) {
 	$link=$row['link_id'];
 	$word_id=$row['keyword_id'];
@@ -88,21 +88,21 @@ while ($row=mysql_fetch_array($result)) {
 	$query = "select keyword from ".$mysql_table_prefix."keywords where keyword_id = $word_id";
 
 
-	$result2 = mysql_query($query);
+	$result2 = mysqli_query($GLOBALS['connect'], $query);
 	if ($row2=mysql_fetch_array($result2)) {
 		$word = $row2['keyword'];
 		$wordmd5 = substr(md5($word), 0, 1);
 		$query = "insert into ".$mysql_table_prefix."link_keyword$wordmd5 (link_id, keyword_id, weight) values($link, $word_id, $weight)";
-		mysql_query($query);
-		echo mysql_error();
+		mysqli_query($GLOBALS['connect'], $query);
+		echo mysqli_error($GLOBALS['connect']);
 	}
 
 }
 
 
 $query = "select link_id, url from ".$mysql_table_prefix."links";
-$result = mysql_query($query);
-echo mysql_error();
+$result = mysqli_query($GLOBALS['connect'], $query);
+echo mysqli_error($GLOBALS['connect']);
 
 $found_domains = array();
 while ($row=mysql_fetch_array($result)) {
@@ -110,25 +110,25 @@ while ($row=mysql_fetch_array($result)) {
 	$url=$row['url'];
 	$parsed = parse_url($url);
 	$domain = $parsed['host'];
-	
+
 	if ($found_domains[$domain]!="") {
 		$domain_id = $found_domains[$domain];
 	} else {
-		$query = "insert into ".$mysql_table_prefix."domains (domain) values('$domain')"; 
-		mysql_query($query);
-		echo mysql_error();
+		$query = "insert into ".$mysql_table_prefix."domains (domain) values('$domain')";
+		mysqli_query($GLOBALS['connect'], $query);
+		echo mysqli_error($GLOBALS['connect']);
 		$domain_id = mysql_insert_id();
 		$found_domains[$domain] = $domain_id;
 	}
-	
+
 
 	for ($i=0;$i<=15; $i++) {
 		$char = dechex($i);
-		mysql_query("update ".$mysql_table_prefix."link_keyword$char set domain='$domain_id' where link_id = $link_id");
-		echo mysql_error();
+		mysqli_query($GLOBALS['connect'], "update ".$mysql_table_prefix."link_keyword$char set domain='$domain_id' where link_id = $link_id");
+		echo mysqli_error($GLOBALS['connect']);
 	}
 }
 
-mysql_query("drop table link_keyword");
+mysqli_query($GLOBALS['connect'], "drop table link_keyword");
 print "Database upgraded.";
 ?>

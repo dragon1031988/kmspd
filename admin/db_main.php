@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 error_reporting (E_ALL ^ E_NOTICE);
 extract($_POST);
@@ -28,14 +28,14 @@ function checkAll(theForm, cName, allNo_stat) {
 }
 
   function confirm_del_prompt(URL) {
-	if (!confirm("Do you really want to delete the backup file?")) 
-		return false;	  
+	if (!confirm("Do you really want to delete the backup file?"))
+		return false;
 	window.location = URL;
 	}
 
  function confirm_rest_prompt(URL) {
-	if (!confirm("Do you want to restore the database from backup file? Current database will be lost.")) 
-		return false;	  
+	if (!confirm("Do you want to restore the database from backup file? Current database will be lost."))
+		return false;
 	window.location = URL;
 	}
 </script>
@@ -44,13 +44,13 @@ function checkAll(theForm, cName, allNo_stat) {
 <div id="submenu">
 </div>
   <TABLE WIDTH="94%">
-	 <TR> 
-	  <TD valign="top"><center> 
-		<?php 
+	 <TR>
+	  <TD valign="top"><center>
+		<?php
 		  if (!get_extension_funcs('zlib'))  {
 			 echo "Compression module status notice: <font color='red'>Zlib is NOT installed on the server! Backup disabled!";
 		  } ?>
-		  </font></center>	  
+		  </font></center>
 		</TD>
 	</TR>
   </TABLE>
@@ -59,7 +59,7 @@ function checkAll(theForm, cName, allNo_stat) {
 <input type="hidden" name="f" value="database">
 
 <table width="94%" border="0" cellspacing=0 cellpadding=0 align="center">
-  <tr align=center> 
+  <tr align=center>
 	<td width="1%" class="greyHeading">&nbsp;</td>
 	<td class="greyHeading"><b>Tables</b></font></td>
 	<td width="10%" class="greyHeading"><b>Rows</b></font></td>
@@ -70,11 +70,11 @@ function checkAll(theForm, cName, allNo_stat) {
  <?php
 
 
-		$stats  = mysql_query ("SHOW TABLE STATUS FROM $dbname LIKE '$dbprefix%'");
+		$stats  = mysqli_query($GLOBALS['connect'], "SHOW TABLE STATUS FROM $dbname LIKE '$dbprefix%'");
 		$num_tables = mysql_num_rows($stats);
 		if ($num_tables==0) {
 			echo("ERROR: Database contains no tables");
-		}	
+		}
 
 		$bgcolor='grey';
 		$i=0;
@@ -91,7 +91,7 @@ function checkAll(theForm, cName, allNo_stat) {
   		} else {
 			$bgcolor='grey';
   		}
-  	}	
+  	}
 
 echo "
 <tr><td colspan='6'>
@@ -121,12 +121,12 @@ echo "
 </form>
 <br>
 <table width='94%' border='0' cellspacing='0' cellpadding='0' align='center'>
-  <TR> 
+  <TR>
 	  <TD valign='top'>";
-  
+
 
 if (isset($file) && $del==0) {
-	  if (eregi("gz",$file)) { 
+	  if (eregi("gz",$file)) {
 		 @unlink($backup_path."backup.sql");
 		 $fp = @fopen($backup_path."backup.sql","w");
 		 fwrite ($fp,"");
@@ -135,11 +135,11 @@ if (isset($file) && $del==0) {
 		 $fp = @fopen($backup_path."backup.sql","w");
 		 $zp = @gzopen($backup_path.$file, "rb");
 		 if(!$fp) {
-			die("No sql file can be created"); 
-		 }	
+			die("No sql file can be created");
+		 }
 		 if(!$zp) {
 			die("Cannot read zip file");
-		 }	
+		 }
 		 while(!gzeof($zp)){
 			$data=gzgets($zp, 8192);// buffer php
 			fwrite($fp,$data);
@@ -153,14 +153,14 @@ if (isset($file) && $del==0) {
 	$file_temp=fread(fopen($backup_path.$file, "r"), filesize($backup_path.$file));
 	$query=explode(";#%%\n",$file_temp);
 	for ($i=0;$i < count($query)-1;$i++) {
-		mysql_db_query($dbname,$query[$i]) or die(mysql_error());
+		mysql_db_query($dbname,$query[$i]) or die(mysqli_error($GLOBALS['connect']));
 	}
 	unlink($backup_path.$file);
-	echo "<table width=\"94%\"><tr><td><b>Your restore 
-request was processed.</b> If you did not receive any errors on the screen, then 
+	echo "<table width=\"94%\"><tr><td><b>Your restore
+request was processed.</b> If you did not receive any errors on the screen, then
 you should find that your database tables have been restored.<br></td></tr></table>";
 }
-} 
+}
 if (isset($file) && $del==1) {
 	@unlink($backup_path.$file);
 }
@@ -168,48 +168,48 @@ if (isset($file) && $del==1) {
 ?>
 	  </TD>
 	</TR>
-	<TR> 
+	<TR>
 	  <TD valign="top">
 	  <table width="100%" cellspacing="0">
-		  
+
 <?php
 	if (!is_dir($backup_path)) {
 		mkdir($backup_path, 0766);
 	}
-	$dir=opendir($backup_path); 
+	$dir=opendir($backup_path);
 	$bgcolor='grey';
 	$is_first=1;
 
-		
 
-	while ($file = readdir ($dir)) { 
+
+	while ($file = readdir ($dir)) {
 		if ($file != "." && $file != ".." &&  (eregi("\.sql",$file) || eregi("\.gz",$file))){
 			if($is_first==1){
-				echo "<tr> 
+				echo "<tr>
 				<td width=\"30%\" align=\"center\" class=\"greyHeading\"><b>File</b></td>
 				<td width=\"20%\" align=\"center\" class=\"greyHeading\"><b>Size</b></td>
 				<td width=\"20%\" align=\"center\" class=\"greyHeading\"><b>Date</b></td>
-				<td class=\"greyHeading\">&nbsp;</td></tr>"; 
+				<td class=\"greyHeading\">&nbsp;</td></tr>";
 			}
 			$is_first=0;
 			echo "<tr><td nowrap class=$bgcolor align=\"center\">$file</td>
 				 <td nowrap class=$bgcolor align=\"center\">".round(filesize($backup_path.$file) / 1024, 2)." kB</td>
 				 <td nowrap class=$bgcolor align=\"center\">".date("Y-m-d",filemtime($backup_path.$file))."</td>
 				 <td nowrap class=$bgcolor align=\"left\"><input type='button' id='submit' onclick=\"confirm_rest_prompt('./admin.php?f=database&file=$file&del=0');\" value='Restore'> &nbsp;<input type='button' id='submit' onclick=\"confirm_del_prompt('./admin.php?f=database&file=$file&del=1');\" value='Delete'></td>
-				 </tr>"; 
-			 
+				 </tr>";
+
 			if ($bgcolor=='grey') {
 				$bgcolor='greyForm';
   			} else {
 				$bgcolor='grey';
   			}
 		}
-		
+
 	}
 	closedir($dir);
 	?>
 		</table></TD>
 	</TR>
-	
+
   </TABLE>
 </CENTER>

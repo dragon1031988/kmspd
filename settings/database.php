@@ -1,7 +1,7 @@
 <?php
 	$database="sphider";
 	$mysql_user = "root";
-	$mysql_password = "longhomon123"; 
+	$mysql_password = "longhomon123";
 	$mysql_host = "localhost";
 	$mysql_table_prefix = "";
 
@@ -13,4 +13,3 @@
 	}
 	$GLOBALS['connect'] = $connect;
 ?>
-

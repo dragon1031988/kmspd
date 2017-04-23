@@ -111,7 +111,7 @@ function saveToLog ($query, $elapsed, $results) {
     $query =  "insert into ".$mysql_table_prefix."query_log (query, time, elapsed, results) values ('$query', now(), '$elapsed', '$results')";
 	mysqli_query($GLOBALS['connect'], $query);
                     
-	echo mysql_error();
+	echo mysqli_error($GLOBALS['connect']);
                         
 }
 
