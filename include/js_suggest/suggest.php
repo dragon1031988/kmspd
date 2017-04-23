@@ -87,7 +87,7 @@ elseif ($suggest_keywords)
 		$char = dechex($i);
 		$result = mysqli_query($GLOBALS['connect'], $sql = "
 		SELECT keyword, count(keyword) as results
-		FROM {$mysqli_table_prefix}keywords INNER JOIN {$mysql_table_prefix}link_keyword$char USING (keyword_id)
+		FROM {$mysqli_table_prefix}keywords INNER JOIN {$mysqli_table_prefix}link_keyword$char USING (keyword_id)
 		WHERE keyword LIKE '{$_GET['q']}%'
 		GROUP BY keyword
 		ORDER BY results desc

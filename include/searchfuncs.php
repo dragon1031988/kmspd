@@ -173,7 +173,7 @@ error_reporting(E_ALL ^ E_NOTICE);
 			}
 			$wordmd5 = substr(md5($searchword), 0, 1);
 
-            $query1 = "SELECT link_id from ".$mysqli_table_prefix."link_keyword$wordmd5, ".$mysql_table_prefix."keywords where ".$mysql_table_prefix."link_keyword$wordmd5.keyword_id= ".$mysql_table_prefix."keywords.keyword_id and keyword='$searchword'";
+            $query1 = "SELECT link_id from ".$mysqli_table_prefix."link_keyword$wordmd5, ".$mysqli_table_prefix."keywords where ".$mysqli_table_prefix."link_keyword$wordmd5.keyword_id= ".$mysqli_table_prefix."keywords.keyword_id and keyword='$searchword'";
 
 			$result = mysqli_query($GLOBALS['connect'], $query1);
 
@@ -208,7 +208,7 @@ error_reporting(E_ALL ^ E_NOTICE);
 		if (($category> 0) && $possible_to_find==1) {
 			$allcats = get_cats($category);
 			$catlist = implode(",", $allcats);
-			$query1 = "select link_id from ".$mysqli_table_prefix."links, ".$mysql_table_prefix."sites, ".$mysql_table_prefix."categories, ".$mysql_table_prefix."site_category where ".$mysql_table_prefix."links.site_id = ".$mysql_table_prefix."sites.site_id and ".$mysql_table_prefix."sites.site_id = ".$mysql_table_prefix."site_category.site_id and ".$mysql_table_prefix."site_category.category_id in ($catlist)";
+			$query1 = "select link_id from ".$mysqli_table_prefix."links, ".$mysqli_table_prefix."sites, ".$mysqli_table_prefix."categories, ".$mysqli_table_prefix."site_category where ".$mysqli_table_prefix."links.site_id = ".$mysqli_table_prefix."sites.site_id and ".$mysqli_table_prefix."sites.site_id = ".$mysqli_table_prefix."site_category.site_id and ".$mysqli_table_prefix."site_category.category_id in ($catlist)";
 			$result = mysqli_query($GLOBALS['connect'], $query1);
 			echo mysqli_error($GLOBALS['connect']);
 			$num_rows = mysqli_num_rows($result);
@@ -232,7 +232,7 @@ error_reporting(E_ALL ^ E_NOTICE);
 				$searchword = addslashes($wordarray[$words]);
 			}
 			$wordmd5 = substr(md5($searchword), 0, 1);
-			$query1 = "SELECT distinct link_id, weight, domain from ".$mysqli_table_prefix."link_keyword$wordmd5, ".$mysql_table_prefix."keywords where ".$mysql_table_prefix."link_keyword$wordmd5.keyword_id= ".$mysql_table_prefix."keywords.keyword_id and keyword='$searchword' $domain_qry order by weight desc";
+			$query1 = "SELECT distinct link_id, weight, domain from ".$mysqli_table_prefix."link_keyword$wordmd5, ".$mysqli_table_prefix."keywords where ".$mysqli_table_prefix."link_keyword$wordmd5.keyword_id= ".$mysqli_table_prefix."keywords.keyword_id and keyword='$searchword' $domain_qry order by weight desc";
 			echo mysqli_error($GLOBALS['connect']);
 			$result = mysqli_query($GLOBALS['connect'], $query1);
 			$num_rows = mysqli_num_rows($result);

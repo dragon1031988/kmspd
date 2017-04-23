@@ -42,7 +42,7 @@ function get_category_info($catid) {
 	
 	
 	/* list category sites */
-	$categories['cat_sites'] = sql_fetch_all('SELECT url, title, short_desc FROM '.$mysqli_table_prefix.'sites, '.$mysql_table_prefix.'site_category WHERE category_id='.$catid.' AND '.$mysql_table_prefix.'sites.site_id='.$mysql_table_prefix.'site_category.site_id order by title');
+	$categories['cat_sites'] = sql_fetch_all('SELECT url, title, short_desc FROM '.$mysqli_table_prefix.'sites, '.$mysqli_table_prefix.'site_category WHERE category_id='.$catid.' AND '.$mysqli_table_prefix.'sites.site_id='.$mysqli_table_prefix.'site_category.site_id order by title');
 	
 	return $categories;
 }

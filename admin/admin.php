@@ -631,7 +631,7 @@ function addcatform($parent) {
 			$url=$url."/";
 		$result = mysqli_query($GLOBALS['connect'], "select site_ID from ".$mysqli_table_prefix."sites where url='$url'");
 		echo mysqli_error($GLOBALS['connect']);
-		$rows = mysqli_numrows($result);
+		$rows = mysqli_num_rows($result);
 		if ($rows==0 ) {
 			mysqli_query($GLOBALS['connect'], "INSERT INTO ".$mysqli_table_prefix."sites (url, title, short_desc) VALUES ('$url', '$title', '$short_desc')");
 			echo mysqli_error($GLOBALS['connect']);

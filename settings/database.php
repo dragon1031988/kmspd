@@ -5,7 +5,7 @@
 	$mysqli_host = "localhost";
 	$mysqli_table_prefix = "";
 
-	$connect = mysqli_connect ($mysqli_host, $mysql_user, $mysql_password, $database);
+	$connect = mysqli_connect ($mysqli_host, $mysqli_user, $mysqli_password, $database);
 	// Check connection
 	if (mysqli_connect_errno())
 	{
