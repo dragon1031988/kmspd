@@ -478,7 +478,7 @@ function url_purify($url, $parent_url, $can_leave_domain) {
 }
 
 function save_keywords($wordarray, $link_id, $domain) {
-	global $mysql_table_prefix, $all_keywords;
+	global $mysqli_table_prefix, $all_keywords;
 	reset($wordarray);
 	while ($thisword = each($wordarray)) {
 		$word = $thisword[1][1];
@@ -487,14 +487,14 @@ function save_keywords($wordarray, $link_id, $domain) {
 		if (strlen($word)<= 30) {
 			$keyword_id = $all_keywords[$word];
 			if ($keyword_id  == "") {
-					mysqli_query($GLOBALS['connect'], "insert into ".$mysql_table_prefix."keywords (keyword) values ('$word')");
-				if (mysql_errno() == 1062) {
-					$result = mysqli_query($GLOBALS['connect'], "select keyword_ID from ".$mysql_table_prefix."keywords where keyword='$word'");
+					mysqli_query($GLOBALS['connect'], "insert into ".$mysqli_table_prefix."keywords (keyword) values ('$word')");
+				if (mysqli_errno() == 1062) {
+					$result = mysqli_query($GLOBALS['connect'], "select keyword_ID from ".$mysqli_table_prefix."keywords where keyword='$word'");
 					echo mysqli_error($GLOBALS['connect']);
-					$row = mysql_fetch_row($result);
+					$row = mysqli_fetch_row($result);
 					$keyword_id = $row[0];
 				} else{
-				$keyword_id = mysql_insert_id();
+				$keyword_id = mysqli_insert_id();
 				$all_keywords[$word] = $keyword_id;
 				echo mysqli_error($GLOBALS['connect']);
 			}
@@ -507,7 +507,7 @@ function save_keywords($wordarray, $link_id, $domain) {
 		$char = dechex($i);
 		$values= substr($inserts[$char], 1);
 		if ($values!="") {
-			$query = "insert into ".$mysql_table_prefix."link_keyword$char (link_id, keyword_id, weight, domain) values $values";
+			$query = "insert into ".$mysqli_table_prefix."link_keyword$char (link_id, keyword_id, weight, domain) values $values";
 			mysqli_query($GLOBALS['connect'], $query);
 			echo mysqli_error($GLOBALS['connect']);
 		}
@@ -688,10 +688,10 @@ function calc_weights($wordarray, $title, $host, $path, $keywords) {
 }
 
 function isDuplicateMD5($md5sum) {
-	global $mysql_table_prefix;
-	$result = mysqli_query($GLOBALS['connect'], "select link_id from ".$mysql_table_prefix."links where md5sum='$md5sum'");
+	global $mysqli_table_prefix;
+	$result = mysqli_query($GLOBALS['connect'], "select link_id from ".$mysqli_table_prefix."links where md5sum='$md5sum'");
 	echo mysqli_error($GLOBALS['connect']);
-	if (mysql_num_rows($result) > 0) {
+	if (mysqli_num_rows($result) > 0) {
 		return true;
 	}
 	return false;
@@ -748,24 +748,24 @@ function check_include($link, $inc, $not_inc) {
 }
 
 function check_for_removal($url) {
-	global $mysql_table_prefix;
+	global $mysqli_table_prefix;
 	global $command_line;
-	$result = mysqli_query($GLOBALS['connect'], "select link_id, visible from ".$mysql_table_prefix."links"." where url='$url'");
+	$result = mysqli_query($GLOBALS['connect'], "select link_id, visible from ".$mysqli_table_prefix."links"." where url='$url'");
 	echo mysqli_error($GLOBALS['connect']);
-	if (mysql_num_rows($result) > 0) {
-		$row = mysql_fetch_row($result);
+	if (mysqli_num_rows($result) > 0) {
+		$row = mysqli_fetch_row($result);
 		$link_id = $row[0];
 		$visible = $row[1];
 		if ($visible > 0) {
 			$visible --;
-			mysqli_query($GLOBALS['connect'], "update ".$mysql_table_prefix."links set visible=$visible where link_id=$link_id");
+			mysqli_query($GLOBALS['connect'], "update ".$mysqli_table_prefix."links set visible=$visible where link_id=$link_id");
 			echo mysqli_error($GLOBALS['connect']);
 		} else {
-			mysqli_query($GLOBALS['connect'], "delete from ".$mysql_table_prefix."links where link_id=$link_id");
+			mysqli_query($GLOBALS['connect'], "delete from ".$mysqli_table_prefix."links where link_id=$link_id");
 			echo mysqli_error($GLOBALS['connect']);
 			for ($i=0;$i<=15; $i++) {
 				$char = dechex($i);
-				mysqli_query($GLOBALS['connect'], "delete from ".$mysql_table_prefix."link_keyword$char where link_id=$link_id");
+				mysqli_query($GLOBALS['connect'], "delete from ".$mysqli_table_prefix."link_keyword$char where link_id=$link_id");
 				echo mysqli_error($GLOBALS['connect']);
 			}
 			printStandardReport('pageRemoved',$command_line);

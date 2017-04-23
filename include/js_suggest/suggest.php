@@ -39,14 +39,14 @@ if ($suggest_history && $_GET['q']!='"')
 {
 	$result = mysqli_query($GLOBALS['connect'], $sql = "
 	SELECT 	query as keyword, max(results) as results
-	FROM {$mysql_table_prefix}query_log
+	FROM {$mysqli_table_prefix}query_log
 	WHERE results > 0 AND (query LIKE '{$_GET['q']}%' OR query LIKE '\"{$_GET['q']}%')
 	GROUP BY query ORDER BY results DESC
 	LIMIT $suggest_rows
 	");
-	if($result && mysql_num_rows($result))
+	if($result && mysqli_num_rows($result))
 	{
-	    while($row = mysql_fetch_array($result))
+	    while($row = mysqli_fetch_array($result))
 	    {
 	        $values[$row['keyword']] = $row['results'];
 	    }
@@ -64,12 +64,12 @@ if ($suggest_phrases)
 	$_words = substr_count($_GET['q'],' ') + 1;
 
 	$result = mysqli_query($GLOBALS['connect'], $sql = "
-	SELECT count(link_id) as results, SUBSTRING_INDEX(SUBSTRING(fulltxt,LOCATE('{$_GET['q']}',LOWER(fulltxt))), ' ', '$_words') as keyword FROM {$mysql_table_prefix}links where fulltxt like '%{$_GET['q']}%'
+	SELECT count(link_id) as results, SUBSTRING_INDEX(SUBSTRING(fulltxt,LOCATE('{$_GET['q']}',LOWER(fulltxt))), ' ', '$_words') as keyword FROM {$mysqli_table_prefix}links where fulltxt like '%{$_GET['q']}%'
 	GROUP BY SUBSTRING_INDEX( SUBSTRING( fulltxt, LOCATE( '{$_GET['q']}', LOWER(fulltxt) ) ) , ' ', '$_words' ) LIMIT $suggest_rows
 	");
-	if($result && mysql_num_rows($result))
+	if($result && mysqli_num_rows($result))
 	{
-	    while($row = mysql_fetch_array($result))
+	    while($row = mysqli_fetch_array($result))
 	    {
 	    	//$row['keyword'] = preg_replace("/[^\s\w]/ims",'',$row['keyword']);//array('.',',','?')$row['keyword']);
 	         $values[$row['keyword']] = $row['results'];
@@ -87,14 +87,14 @@ elseif ($suggest_keywords)
 		$char = dechex($i);
 		$result = mysqli_query($GLOBALS['connect'], $sql = "
 		SELECT keyword, count(keyword) as results
-		FROM {$mysql_table_prefix}keywords INNER JOIN {$mysql_table_prefix}link_keyword$char USING (keyword_id)
+		FROM {$mysqli_table_prefix}keywords INNER JOIN {$mysql_table_prefix}link_keyword$char USING (keyword_id)
 		WHERE keyword LIKE '{$_GET['q']}%'
 		GROUP BY keyword
 		ORDER BY results desc
 		LIMIT $suggest_rows
 		");
-		if($result && mysql_num_rows($result)) {
-		    while($row = mysql_fetch_array($result)) {
+		if($result && mysqli_num_rows($result)) {
+		    while($row = mysqli_fetch_array($result)) {
 		        $values[$row['keyword']] = $row['results'];
 		    }
 		}

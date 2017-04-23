@@ -50,13 +50,13 @@
 	}
 
 	function get_cats($parent) {
-		global $mysql_table_prefix;
-		$query = "SELECT * FROM ".$mysql_table_prefix."categories WHERE parent_num=$parent";
+		global $mysqli_table_prefix;
+		$query = "SELECT * FROM ".$mysqli_table_prefix."categories WHERE parent_num=$parent";
 		echo mysqli_connect_errno();
 		$result = mysqli_query($GLOBALS['connect'], $query);
 		$arr[] = $parent;
-		if (mysql_num_rows($result) <> '') {
-			while ($row = mysql_fetch_array($result)) {
+		if (mysqli_num_rows($result) <> '') {
+			while ($row = mysqli_fetch_array($result)) {
 				$id = $row[category_id];
 				$arr = add_arrays($arr, get_cats($id));
 			}

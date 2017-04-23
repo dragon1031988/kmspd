@@ -103,9 +103,9 @@
 	} else {
 
 		if ($reindex == 1 && $command_line == 1) {
-			$result=mysqli_query($GLOBALS['connect'], "select url, spider_depth, required, disallowed, can_leave_domain from ".$mysql_table_prefix."sites where url='$url'");
+			$result=mysqli_query($GLOBALS['connect'], "select url, spider_depth, required, disallowed, can_leave_domain from ".$mysqli_table_prefix."sites where url='$url'");
 			echo mysqli_error($GLOBALS['connect']);
-			if($row=mysql_fetch_row($result)) {
+			if($row=mysqli_fetch_row($result)) {
 				$url = $row[0];
 				$maxlevel = $row[1];
 				$in= $row[2];
@@ -147,7 +147,7 @@
 		global $command_line;
 		global $min_words_per_page;
 		global $supdomain;
-		global $mysql_table_prefix, $user_agent, $tmp_urls, $delay_time, $domain_arr;
+		global $mysqli_table_prefix, $user_agent, $tmp_urls, $delay_time, $domain_arr;
 		$needsReindex = 1;
 		$deletable = 0;
 
@@ -158,11 +158,11 @@
 			$url = preg_replace("/ /", "", url_purify($url_status['path'], $url, $can_leave_domain));
 
 			if ($url <> '') {
-				$result = mysqli_query($GLOBALS['connect'], "select link from ".$mysql_table_prefix."temp where link='$url' && id = '$sessid'");
+				$result = mysqli_query($GLOBALS['connect'], "select link from ".$mysqli_table_prefix."temp where link='$url' && id = '$sessid'");
 				echo mysqli_error($GLOBALS['connect']);
-				$rows = mysql_numrows($result);
+				$rows = mysqli_numrows($result);
 				if ($rows == 0) {
-					mysqli_query($GLOBALS['connect'], "insert into ".$mysql_table_prefix."temp (link, level, id) values ('$url', '$level', '$sessid')");
+					mysqli_query($GLOBALS['connect'], "insert into ".$mysqli_table_prefix."temp (link, level, id) values ('$url', '$level', '$sessid')");
 					echo mysqli_error($GLOBALS['connect']);
 				}
 			}
@@ -271,7 +271,7 @@
 							if ($tmp_urls[$thislink[1]] != 1) {
 								$tmp_urls[$thislink[1]] = 1;
 								$numoflinks++;
-								mysqli_query($GLOBALS['connect'], "insert into ".$mysql_table_prefix."temp (link, level, id) values ('$thislink[1]', '$level', '$sessid')");
+								mysqli_query($GLOBALS['connect'], "insert into ".$mysqli_table_prefix."temp (link, level, id) values ('$thislink[1]', '$level', '$sessid')");
 								echo mysqli_error($GLOBALS['connect']);
 							}
 						}
@@ -293,8 +293,8 @@
 					if (isset($domain_arr[$domain_for_db])) {
 						$dom_id = $domain_arr[$domain_for_db];
 					} else {
-						mysqli_query($GLOBALS['connect'], "insert into ".$mysql_table_prefix."domains (domain) values ('$domain_for_db')");
-						$dom_id = mysql_insert_id();
+						mysqli_query($GLOBALS['connect'], "insert into ".$mysqli_table_prefix."domains (domain) values ('$domain_for_db')");
+						$dom_id = mysqli_insert_id();
 						$domain_arr[$domain_for_db] = $dom_id;
 					}
 
@@ -303,11 +303,11 @@
 					//if there are words to index, add the link to the database, get its id, and add the word + their relation
 					if (is_array($wordarray) && count($wordarray) > $min_words_per_page) {
 						if ($md5sum == '') {
-							mysqli_query($GLOBALS['connect'], "insert into ".$mysql_table_prefix."links (site_id, url, title, description, fulltxt, indexdate, size, md5sum, level) values ('$site_id', '$url', '$title', '$desc', '$fulltxt', curdate(), '$pageSize', '$newmd5sum', $thislevel)");
+							mysqli_query($GLOBALS['connect'], "insert into ".$mysqli_table_prefix."links (site_id, url, title, description, fulltxt, indexdate, size, md5sum, level) values ('$site_id', '$url', '$title', '$desc', '$fulltxt', curdate(), '$pageSize', '$newmd5sum', $thislevel)");
 							echo mysqli_error($GLOBALS['connect']);
-							$result = mysqli_query($GLOBALS['connect'], "select link_id from ".$mysql_table_prefix."links where url='$url'");
+							$result = mysqli_query($GLOBALS['connect'], "select link_id from ".$mysqli_table_prefix."links where url='$url'");
 							echo mysqli_error($GLOBALS['connect']);
-							$row = mysql_fetch_row($result);
+							$row = mysqli_fetch_row($result);
 							$link_id = $row[0];
 
 							save_keywords($wordarray, $link_id, $dom_id);
@@ -315,17 +315,17 @@
 							printStandardReport('indexed', $command_line);
 						}else if (($md5sum <> '') && ($md5sum <> $newmd5sum)) { //if page has changed, start updating
 
-							$result = mysqli_query($GLOBALS['connect'], "select link_id from ".$mysql_table_prefix."links where url='$url'");
+							$result = mysqli_query($GLOBALS['connect'], "select link_id from ".$mysqli_table_prefix."links where url='$url'");
 							echo mysqli_error($GLOBALS['connect']);
-							$row = mysql_fetch_row($result);
+							$row = mysqli_fetch_row($result);
 							$link_id = $row[0];
 							for ($i=0;$i<=15; $i++) {
 								$char = dechex($i);
-								mysqli_query($GLOBALS['connect'], "delete from ".$mysql_table_prefix."link_keyword$char where link_id=$link_id");
+								mysqli_query($GLOBALS['connect'], "delete from ".$mysqli_table_prefix."link_keyword$char where link_id=$link_id");
 								echo mysqli_error($GLOBALS['connect']);
 							}
 							save_keywords($wordarray, $link_id, $dom_id);
-							$query = "update ".$mysql_table_prefix."links set title='$title', description ='$desc', fulltxt = '$fulltxt', indexdate=now(), size = '$pageSize', md5sum='$newmd5sum', level=$thislevel where link_id=$link_id";
+							$query = "update ".$mysqli_table_prefix."links set title='$title', description ='$desc', fulltxt = '$fulltxt', indexdate=now(), size = '$pageSize', md5sum='$newmd5sum', level=$thislevel where link_id=$link_id";
 							mysqli_query($GLOBALS['connect'], $query);
 							echo mysqli_error($GLOBALS['connect']);
 							printStandardReport('re-indexed', $command_line);
@@ -357,11 +357,11 @@
 
 
 	function index_site($url, $reindex, $maxlevel, $soption, $url_inc, $url_not_inc, $can_leave_domain) {
-		global $mysql_table_prefix, $command_line, $mainurl,  $tmp_urls, $domain_arr, $all_keywords;
+		global $mysqli_table_prefix, $command_line, $mainurl,  $tmp_urls, $domain_arr, $all_keywords;
 		if (!isset($all_keywords)) {
-			$result = mysqli_query($GLOBALS['connect'], "select keyword_ID, keyword from ".$mysql_table_prefix."keywords");
+			$result = mysqli_query($GLOBALS['connect'], "select keyword_ID, keyword from ".$mysqli_table_prefix."keywords");
 			echo mysqli_error($GLOBALS['connect']);
-			while($row=mysql_fetch_array($result)) {
+			while($row=mysqli_fetch_array($result)) {
 				$all_keywords[addslashes($row[1])] = $row[0];
 			}
 		}
@@ -385,53 +385,53 @@
 
 
 
-		$result = mysqli_query($GLOBALS['connect'], "select site_id from ".$mysql_table_prefix."sites where url='$url'");
+		$result = mysqli_query($GLOBALS['connect'], "select site_id from ".$mysqli_table_prefix."sites where url='$url'");
 		echo mysqli_error($GLOBALS['connect']);
-		$row = mysql_fetch_row($result);
+		$row = mysqli_fetch_row($result);
 		$site_id = $row[0];
 
 		if ($site_id != "" && $reindex == 1) {
-			mysqli_query($GLOBALS['connect'], "insert into ".$mysql_table_prefix."temp (link, level, id) values ('$url', 0, '$sessid')");
+			mysqli_query($GLOBALS['connect'], "insert into ".$mysqli_table_prefix."temp (link, level, id) values ('$url', 0, '$sessid')");
 			echo mysqli_error($GLOBALS['connect']);
-			$result = mysqli_query($GLOBALS['connect'], "select url, level from ".$mysql_table_prefix."links where site_id = $site_id");
-			while ($row = mysql_fetch_array($result)) {
+			$result = mysqli_query($GLOBALS['connect'], "select url, level from ".$mysqli_table_prefix."links where site_id = $site_id");
+			while ($row = mysqli_fetch_array($result)) {
 				$site_link = $row['url'];
 				$link_level = $row['level'];
 				if ($site_link != $url) {
-					mysqli_query($GLOBALS['connect'], "insert into ".$mysql_table_prefix."temp (link, level, id) values ('$site_link', $link_level, '$sessid')");
+					mysqli_query($GLOBALS['connect'], "insert into ".$mysqli_table_prefix."temp (link, level, id) values ('$site_link', $link_level, '$sessid')");
 				}
 			}
 
-			$qry = "update ".$mysql_table_prefix."sites set indexdate=now(), spider_depth = $maxlevel, required = '$url_inc'," .
+			$qry = "update ".$mysqli_table_prefix."sites set indexdate=now(), spider_depth = $maxlevel, required = '$url_inc'," .
 					"disallowed = '$url_not_inc', can_leave_domain=$can_leave_domain where site_id=$site_id";
 			mysqli_query($GLOBALS['connect'], $qry);
 			echo mysqli_error($GLOBALS['connect']);
 		} else if ($site_id == '') {
-			mysqli_query($GLOBALS['connect'], "insert into ".$mysql_table_prefix."sites (url, indexdate, spider_depth, required, disallowed, can_leave_domain) " .
+			mysqli_query($GLOBALS['connect'], "insert into ".$mysqli_table_prefix."sites (url, indexdate, spider_depth, required, disallowed, can_leave_domain) " .
 					"values ('$url', now(), $maxlevel, '$url_inc', '$url_not_inc', $can_leave_domain)");
 			echo mysqli_error($GLOBALS['connect']);
-			$result = mysqli_query($GLOBALS['connect'], "select site_ID from ".$mysql_table_prefix."sites where url='$url'");
-			$row = mysql_fetch_row($result);
+			$result = mysqli_query($GLOBALS['connect'], "select site_ID from ".$mysqli_table_prefix."sites where url='$url'");
+			$row = mysqli_fetch_row($result);
 			$site_id = $row[0];
 		} else {
-			mysqli_query($GLOBALS['connect'], "update ".$mysql_table_prefix."sites set indexdate=now(), spider_depth = $maxlevel, required = '$url_inc'," .
+			mysqli_query($GLOBALS['connect'], "update ".$mysqli_table_prefix."sites set indexdate=now(), spider_depth = $maxlevel, required = '$url_inc'," .
 					"disallowed = '$url_not_inc', can_leave_domain=$can_leave_domain where site_id=$site_id");
 			echo mysqli_error($GLOBALS['connect']);
 		}
 
 
-		$result = mysqli_query($GLOBALS['connect'], "select site_id, temp_id, level, count, num from ".$mysql_table_prefix."pending where site_id='$site_id'");
+		$result = mysqli_query($GLOBALS['connect'], "select site_id, temp_id, level, count, num from ".$mysqli_table_prefix."pending where site_id='$site_id'");
 		echo mysqli_error($GLOBALS['connect']);
-		$row = mysql_fetch_row($result);
+		$row = mysqli_fetch_row($result);
 		$pending = $row[0];
 		$level = 0;
 		$domain_arr = get_domains();
 		if ($pending == '') {
-			mysqli_query($GLOBALS['connect'], "insert into ".$mysql_table_prefix."temp (link, level, id) values ('$url', 0, '$sessid')");
+			mysqli_query($GLOBALS['connect'], "insert into ".$mysqli_table_prefix."temp (link, level, id) values ('$url', 0, '$sessid')");
 			echo mysqli_error($GLOBALS['connect']);
 		} else if ($pending != '') {
 			printStandardReport('continueSuspended',$command_line);
-			mysqli_query($GLOBALS['connect'], "select temp_id, level, count from ".$mysql_table_prefix."pending where site_id='$site_id'");
+			mysqli_query($GLOBALS['connect'], "select temp_id, level, count from ".$mysqli_table_prefix."pending where site_id='$site_id'");
 			echo mysqli_error($GLOBALS['connect']);
 			$sessid = $row[1];
 			$level = $row[2];
@@ -442,7 +442,7 @@
 		}
 
 		if ($reindex != 1) {
-			mysqli_query($GLOBALS['connect'], "insert into ".$mysql_table_prefix."pending (site_id, temp_id, level, count) values ('$site_id', '$sessid', '0', '0')");
+			mysqli_query($GLOBALS['connect'], "insert into ".$mysqli_table_prefix."pending (site_id, temp_id, level, count) values ('$site_id', '$sessid', '0', '0')");
 			echo mysqli_error($GLOBALS['connect']);
 		}
 
@@ -467,9 +467,9 @@
 
 			$links = array();
 
-			$result = mysqli_query($GLOBALS['connect'], "select distinct link from ".$mysql_table_prefix."temp where level=$level && id='$sessid' order by link");
+			$result = mysqli_query($GLOBALS['connect'], "select distinct link from ".$mysqli_table_prefix."temp where level=$level && id='$sessid' order by link");
 			echo mysqli_error($GLOBALS['connect']);
-			$rows = mysql_num_rows($result);
+			$rows = mysqli_num_rows($result);
 
 			if ($rows == 0) {
 				break;
@@ -477,7 +477,7 @@
 
 			$i = 0;
 
-			while ($row = mysql_fetch_array($result)) {
+			while ($row = mysqli_fetch_array($result)) {
 				$links[] = $row['link'];
 			}
 
@@ -516,21 +516,21 @@
 
 				if ($forbidden == 0) {
 					printRetrieving($num, $thislink, $command_line);
-					$query = "select md5sum, indexdate from ".$mysql_table_prefix."links where url='$thislink'";
+					$query = "select md5sum, indexdate from ".$mysqli_table_prefix."links where url='$thislink'";
 					$result = mysqli_query($GLOBALS['connect'], $query);
 					echo mysqli_error($GLOBALS['connect']);
-					$rows = mysql_num_rows($result);
+					$rows = mysqli_num_rows($result);
 					if ($rows == 0) {
 						index_url($thislink, $level+1, $site_id, '',  $domain, '', $sessid, $can_leave_domain, $reindex);
 
-						mysqli_query($GLOBALS['connect'], "update ".$mysql_table_prefix."pending set level = $level, count=$count, num=$num where site_id=$site_id");
+						mysqli_query($GLOBALS['connect'], "update ".$mysqli_table_prefix."pending set level = $level, count=$count, num=$num where site_id=$site_id");
 						echo mysqli_error($GLOBALS['connect']);
 					}else if ($rows <> 0 && $reindex == 1) {
-						$row = mysql_fetch_array($result);
+						$row = mysqli_fetch_array($result);
 						$md5sum = $row['md5sum'];
 						$indexdate = $row['indexdate'];
 						index_url($thislink, $level+1, $site_id, $md5sum,  $domain, $indexdate, $sessid, $can_leave_domain, $reindex);
-						mysqli_query($GLOBALS['connect'], "update ".$mysql_table_prefix."pending set level = $level, count=$count, num=$num where site_id=$site_id");
+						mysqli_query($GLOBALS['connect'], "update ".$mysqli_table_prefix."pending set level = $level, count=$count, num=$num where site_id=$site_id");
 						echo mysqli_error($GLOBALS['connect']);
 					}else {
 						printStandardReport('inDatabase',$command_line);
@@ -542,9 +542,9 @@
 			$level++;
 		}
 
-		mysqli_query($GLOBALS['connect'], "delete from ".$mysql_table_prefix."temp where id = '$sessid'");
+		mysqli_query($GLOBALS['connect'], "delete from ".$mysqli_table_prefix."temp where id = '$sessid'");
 		echo mysqli_error($GLOBALS['connect']);
-		mysqli_query($GLOBALS['connect'], "delete from ".$mysql_table_prefix."pending where site_id = '$site_id'");
+		mysqli_query($GLOBALS['connect'], "delete from ".$mysqli_table_prefix."pending where site_id = '$site_id'");
 		echo mysqli_error($GLOBALS['connect']);
 		printStandardReport('completed',$command_line);
 
@@ -552,10 +552,10 @@
 	}
 
 	function index_all() {
-		global $mysql_table_prefix;
-		$result=mysqli_query($GLOBALS['connect'], "select url, spider_depth, required, disallowed, can_leave_domain from ".$mysql_table_prefix."sites");
+		global $mysqli_table_prefix;
+		$result=mysqli_query($GLOBALS['connect'], "select url, spider_depth, required, disallowed, can_leave_domain from ".$mysqli_table_prefix."sites");
 		echo mysqli_error($GLOBALS['connect']);
-    	while ($row=mysql_fetch_row($result)) {
+    	while ($row=mysqli_fetch_row($result)) {
     		$url = $row[0];
 	   		$depth = $row[1];
     		$include = $row[2];
@@ -574,11 +574,11 @@
 	}
 
 	function get_temp_urls ($sessid) {
-		global $mysql_table_prefix;
-		$result = mysqli_query($GLOBALS['connect'], "select link from ".$mysql_table_prefix."temp where id='$sessid'");
+		global $mysqli_table_prefix;
+		$result = mysqli_query($GLOBALS['connect'], "select link from ".$mysqli_table_prefix."temp where id='$sessid'");
 		echo mysqli_error($GLOBALS['connect']);
 		$tmp_urls = Array();
-    	while ($row=mysql_fetch_row($result)) {
+    	while ($row=mysqli_fetch_row($result)) {
 			$tmp_urls[$row[0]] = 1;
 		}
 		return $tmp_urls;
@@ -586,11 +586,11 @@
 	}
 
 	function get_domains () {
-		global $mysql_table_prefix;
-		$result = mysqli_query($GLOBALS['connect'], "select domain_id, domain from ".$mysql_table_prefix."domains");
+		global $mysqli_table_prefix;
+		$result = mysqli_query($GLOBALS['connect'], "select domain_id, domain from ".$mysqli_table_prefix."domains");
 		echo mysqli_error($GLOBALS['connect']);
 		$domains = Array();
-    	while ($row=mysql_fetch_row($result)) {
+    	while ($row=mysqli_fetch_row($result)) {
 			$domains[$row[1]] = $row[0];
 		}
 		return $domains;

@@ -40,8 +40,8 @@ Of course you can use some other name for database instead of sphider_db.
 c) Use exit to exit MySQL.
 For more information on how to create a database and give/get the necessary permissions, check MySQL.com
 
-3.  In settings directory, edit database.php file and change $database, $mysql_user, $mysql_password and $mysql_host 
-to correct values (if you dont know what $mysql_host should be, it should probably stay as it is - 'localhost'). 
+3.  In settings directory, edit database.php file and change $database, $mysqli_user, $mysql_password and $mysql_host 
+to correct values (if you dont know what $mysqli_host should be, it should probably stay as it is - 'localhost'). 
 
 4. Open install.php script (admin directory) in your browser, which will create the tables necessary for Sphider to operate.
 

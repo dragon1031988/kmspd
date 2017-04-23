@@ -73,10 +73,10 @@ if (!is_numeric($category)) {
 
 if ($catid && is_numeric($catid)) {
 
-	$tpl_['category'] = sql_fetch_all('SELECT category FROM '.$mysql_table_prefix.'categories WHERE category_id='.(int)$_REQUEST['catid']);
+	$tpl_['category'] = sql_fetch_all('SELECT category FROM '.$mysqli_table_prefix.'categories WHERE category_id='.(int)$_REQUEST['catid']);
 }
 	
-$count_level0 = sql_fetch_all('SELECT count(*) FROM '.$mysql_table_prefix.'categories WHERE parent_num=0');
+$count_level0 = sql_fetch_all('SELECT count(*) FROM '.$mysqli_table_prefix.'categories WHERE parent_num=0');
 $has_categories = 0;
 
 if ($count_level0) {
@@ -104,11 +104,11 @@ function poweredby () {
 
 
 function saveToLog ($query, $elapsed, $results) {
-        global $mysql_table_prefix;
+        global $mysqli_table_prefix;
     if ($results =="") {
         $results = 0;
     }
-    $query =  "insert into ".$mysql_table_prefix."query_log (query, time, elapsed, results) values ('$query', now(), '$elapsed', '$results')";
+    $query =  "insert into ".$mysqli_table_prefix."query_log (query, time, elapsed, results) values ('$query', now(), '$elapsed', '$results')";
 	mysqli_query($GLOBALS['connect'], $query);
                     
 	echo mysqli_error($GLOBALS['connect']);

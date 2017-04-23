@@ -101,7 +101,7 @@ $database_funcs = Array ("database" => "default");
 
 <?php
 	function list_cats($parent, $lev, $color, $message) {
-		global $mysql_table_prefix;
+		global $mysqli_table_prefix;
 		if ($lev == 0) {
 			?>
 			<div id="submenu">
@@ -118,12 +118,12 @@ $database_funcs = Array ("database" => "default");
 		for ($x = 0; $x < $lev; $x++)
 			$space .= "&nbsp;&nbsp;&nbsp;&nbsp;";
 
-		$query = "SELECT * FROM ".$mysql_table_prefix."categories WHERE parent_num=$parent ORDER BY category";
+		$query = "SELECT * FROM ".$mysqli_table_prefix."categories WHERE parent_num=$parent ORDER BY category";
 		$result = mysqli_query($GLOBALS['connect'], $query);
 		echo mysqli_error($GLOBALS['connect']);
 
-		if (mysql_num_rows($result) <> '')
-			while ($row = mysql_fetch_array($result)) {
+		if (mysqli_num_rows($result) <> '')
+			while ($row = mysqli_fetch_array($result)) {
 				if ($color =="white")
 					$color = "grey";
 				else
@@ -142,24 +142,24 @@ $database_funcs = Array ("database" => "default");
 	}
 
 	function walk_through_cats($parent, $lev, $site_id) {
-		global $mysql_table_prefix;
+		global $mysqli_table_prefix;
 		$space = "";
 		for ($x = 0; $x < $lev; $x++)
 			$space .= "&nbsp;&nbsp;&nbsp;&nbsp;";
 
-		$query = "SELECT * FROM ".$mysql_table_prefix."categories WHERE parent_num=$parent ORDER BY category";
+		$query = "SELECT * FROM ".$mysqli_table_prefix."categories WHERE parent_num=$parent ORDER BY category";
 		$result = mysqli_query($GLOBALS['connect'], $query);
 		echo mysqli_error($GLOBALS['connect']);
 
-		if (mysql_num_rows($result) <> '')
-			while ($row = mysql_fetch_array($result)) {
+		if (mysqli_num_rows($result) <> '')
+			while ($row = mysqli_fetch_array($result)) {
 				$id = $row['category_id'];
 				$cat = $row['category'];
 				$state = '';
 				if ($site_id <> '') {
-					$result2 = mysqli_query($GLOBALS['connect'], "select * from ".$mysql_table_prefix."site_category where site_id=$site_id and category_id=$id");
+					$result2 = mysqli_query($GLOBALS['connect'], "select * from ".$mysqli_table_prefix."site_category where site_id=$site_id and category_id=$id");
 					echo mysqli_error($GLOBALS['connect']);
-					$rows = mysql_num_rows($result2);
+					$rows = mysqli_num_rows($result2);
 
 					if ($rows > 0)
 						$state = "checked";
@@ -177,7 +177,7 @@ $database_funcs = Array ("database" => "default");
 
 
 function addcatform($parent) {
-	global $mysql_table_prefix;
+	global $mysqli_table_prefix;
 	$par2 = "";
 	$par2num = "";
 	?>
@@ -187,16 +187,16 @@ function addcatform($parent) {
 	if ($parent=='')
 		$par='(Top level)';
 	else {
-		$query = "SELECT category, parent_num FROM ".$mysql_table_prefix."categories WHERE category_id='$parent'";
+		$query = "SELECT category, parent_num FROM ".$mysqli_table_prefix."categories WHERE category_id='$parent'";
 		$result = mysqli_query($GLOBALS['connect'], $query);
 		if (!mysqli_error($GLOBALS['connect']))	{
-			if ($row = mysql_fetch_row($result)) {
+			if ($row = mysqli_fetch_row($result)) {
 				$par=$row[0];
-				$query = "SELECT Category_ID, Category FROM ".$mysql_table_prefix."categories WHERE Category_ID='$row[1]'";
+				$query = "SELECT Category_ID, Category FROM ".$mysqli_table_prefix."categories WHERE Category_ID='$row[1]'";
 				$result = mysqli_query($GLOBALS['connect'], $query);
 				echo mysqli_error($GLOBALS['connect']);
-				if (mysql_num_rows($result)<>'') {
-					$row = mysql_fetch_row($result);
+				if (mysqli_num_rows($result)<>'') {
+					$row = mysqli_fetch_row($result);
 					$par2num = $row[0];
 					$par2 = $row[1];
 				}
@@ -220,13 +220,13 @@ function addcatform($parent) {
 
 <?php
 	print "<tr><td colspan=2>";
-	$query = "SELECT category_ID, Category FROM ".$mysql_table_prefix."categories WHERE parent_num='$parent'";
+	$query = "SELECT category_ID, Category FROM ".$mysqli_table_prefix."categories WHERE parent_num='$parent'";
 	$result = mysqli_query($GLOBALS['connect'], $query);
 	echo mysqli_error($GLOBALS['connect']);
-	if (mysql_num_rows($result)>0) {
+	if (mysqli_num_rows($result)>0) {
 		print "<br/><b>Create subcategory under</b><br/><br/>";
 	}
-	while ($row = mysql_fetch_row($result)) {
+	while ($row = mysqli_fetch_row($result)) {
 		print "<a href=\"admin.php?f=add_cat&parent=$row[0]\">".stripslashes($row[1])."</a><br/>";
 	}
 	print "</td></tr></table></center>";
@@ -234,13 +234,13 @@ function addcatform($parent) {
 
 
 	function addcat ($category, $parent) {
-			global $mysql_table_prefix;
+			global $mysqli_table_prefix;
 			if ($category=="") return;
 		$category = addslashes($category);
 		if ($parent == "") {
 			$parent = 0;
 		}
-		$query = "INSERT INTO ".$mysql_table_prefix."categories (category, parent_num)
+		$query = "INSERT INTO ".$mysqli_table_prefix."categories (category, parent_num)
 				 VALUES ('$category', ".$parent.")";
 		mysqli_query($GLOBALS['connect'], $query);
 		If (!mysqli_error($GLOBALS['connect'])) {
@@ -270,10 +270,10 @@ function addcatform($parent) {
 	}
 
 	function editsiteform($site_id) {
-		global $mysql_table_prefix;
-		$result = mysqli_query($GLOBALS['connect'], "SELECT site_id, url, title, short_desc, spider_depth, required, disallowed, can_leave_domain from ".$mysql_table_prefix."sites where site_id=$site_id");
+		global $mysqli_table_prefix;
+		$result = mysqli_query($GLOBALS['connect'], "SELECT site_id, url, title, short_desc, spider_depth, required, disallowed, can_leave_domain from ".$mysqli_table_prefix."sites where site_id=$site_id");
 		echo mysqli_error($GLOBALS['connect']);
-		$row = mysql_fetch_array($result);
+		$row = mysqli_fetch_array($result);
 		$depth = $row['spider_depth'];
 		$fullchecked = "";
 		$depthchecked = "";
@@ -314,23 +314,23 @@ function addcatform($parent) {
 
 
 		function editsite ($site_id, $url, $title, $short_desc, $depth, $required, $disallowed, $domaincb,  $cat) {
-			global $mysql_table_prefix;
+			global $mysqli_table_prefix;
 			$short_desc = addslashes($short_desc);
 			$title = addslashes($title);
-			mysqli_query($GLOBALS['connect'], "delete from ".$mysql_table_prefix."site_category where site_id=$site_id");
+			mysqli_query($GLOBALS['connect'], "delete from ".$mysqli_table_prefix."site_category where site_id=$site_id");
 			echo mysqli_error($GLOBALS['connect']);
 			$compurl=parse_url($url);
 			if ($compurl['path']=='')
 				$url=$url."/";
-			mysqli_query($GLOBALS['connect'], "UPDATE ".$mysql_table_prefix."sites SET url='$url', title='$title', short_desc='$short_desc', spider_depth =$depth, required='$required', disallowed='$disallowed', can_leave_domain=$domaincb WHERE site_id=$site_id");
+			mysqli_query($GLOBALS['connect'], "UPDATE ".$mysqli_table_prefix."sites SET url='$url', title='$title', short_desc='$short_desc', spider_depth =$depth, required='$required', disallowed='$disallowed', can_leave_domain=$domaincb WHERE site_id=$site_id");
 			echo mysqli_error($GLOBALS['connect']);
-			$result=mysqli_query($GLOBALS['connect'], "select category_id from ".$mysql_table_prefix."categories");
+			$result=mysqli_query($GLOBALS['connect'], "select category_id from ".$mysqli_table_prefix."categories");
 			echo mysqli_error($GLOBALS['connect']);
 			print mysqli_error($GLOBALS['connect']);
-			while ($row=mysql_fetch_row($result)) {
+			while ($row=mysqli_fetch_row($result)) {
 				$cat_id=$row[0];
 				if ($cat[$cat_id]=='on') {
-					mysqli_query($GLOBALS['connect'], "INSERT INTO ".$mysql_table_prefix."site_category (site_id, category_id) values ('$site_id', '$cat_id')");
+					mysqli_query($GLOBALS['connect'], "INSERT INTO ".$mysqli_table_prefix."site_category (site_id, category_id) values ('$site_id', '$cat_id')");
 					echo mysqli_error($GLOBALS['connect']);
 				}
 			}
@@ -342,10 +342,10 @@ function addcatform($parent) {
 		}
 
 	function editcatform($cat_id) {
-		global $mysql_table_prefix;
-		$result = mysqli_query($GLOBALS['connect'], "SELECT category FROM ".$mysql_table_prefix."categories where category_id='$cat_id'");
+		global $mysqli_table_prefix;
+		$result = mysqli_query($GLOBALS['connect'], "SELECT category FROM ".$mysqli_table_prefix."categories where category_id='$cat_id'");
 		echo mysqli_error($GLOBALS['connect']);
-		$row=mysql_fetch_array($result);
+		$row=mysqli_fetch_array($result);
 		$category=$row[0];
 		?>
 				<div id="submenu">
@@ -363,8 +363,8 @@ function addcatform($parent) {
 
 
 	function editcat ($cat_id, $category) {
-		global $mysql_table_prefix;
-		$qry = "UPDATE ".$mysql_table_prefix."categories SET category='".addslashes($category)."' WHERE category_id='$cat_id'";
+		global $mysqli_table_prefix;
+		$qry = "UPDATE ".$mysqli_table_prefix."categories SET category='".addslashes($category)."' WHERE category_id='$cat_id'";
 		mysqli_query($GLOBALS['connect'], $qry);
 		if (!mysqli_error($GLOBALS['connect']))	{
 			return "<br/><center><b>Category updated</b></center>";
@@ -376,15 +376,15 @@ function addcatform($parent) {
 
 
 	function showsites($message) {
-		global $mysql_table_prefix;
-		$result = mysqli_query($GLOBALS['connect'], "SELECT site_id, url, title, indexdate from ".$mysql_table_prefix."sites ORDER By indexdate, title");
+		global $mysqli_table_prefix;
+		$result = mysqli_query($GLOBALS['connect'], "SELECT site_id, url, title, indexdate from ".$mysqli_table_prefix."sites ORDER By indexdate, title");
 		echo mysqli_error($GLOBALS['connect']);
 		?>
 		<div id='submenu'>
 		 <ul>
 		  <li><a href='admin.php?f=add_site'>Add site</a> </li>
 		  <?php
-			if (mysql_num_rows($result) > 0) {
+			if (mysqli_num_rows($result) > 0) {
 				?>
 				<li><a href='spider.php?all=1'> Reindex all</a></li>
 				<?php
@@ -396,22 +396,22 @@ function addcatform($parent) {
 		<?php
 		print $message;
 		print "<br/>";
-		if (mysql_num_rows($result) > 0) {
+		if (mysqli_num_rows($result) > 0) {
 			print "<div align=\"center\"><table cellspacing =\"0\" cellpadding=\"0\" class=\"darkgrey\"><tr><td><table cellpadding=\"3\" cellspacing=\"1\">
 			<tr class=\"grey\"><td align=\"center\"><b>Site name</b></td><td align=\"center\"><b>Site url</b></td><td align=\"center\"><b>Last indexed</b></td><td colspan=4></td></tr>\n";
 		} else {
 			?><center><p><b>Welcom to Sphider. <br><br>Choose "Add site" from the submenu to add a new site, or "Index" to directly go to the indexing section.</b></p></center><?php
 		}
 		$class = "grey";
-		while ($row=mysql_fetch_array($result))	{
+		while ($row=mysqli_fetch_array($result))	{
 			if ($row['indexdate']=='') {
 				$indexstatus="<font color=\"red\">Not indexed</font>";
 				$indexoption="<a href=\"admin.php?f=index&url=$row[url]\">Index</a>";
 			} else {
 				$site_id = $row['site_id'];
-				$result2 = mysqli_query($GLOBALS['connect'], "SELECT site_id from ".$mysql_table_prefix."pending where site_id =$site_id");
+				$result2 = mysqli_query($GLOBALS['connect'], "SELECT site_id from ".$mysqli_table_prefix."pending where site_id =$site_id");
 				echo mysqli_error($GLOBALS['connect']);
-				$row2=mysql_fetch_array($result2);
+				$row2=mysqli_fetch_array($result2);
 				if ($row2['site_id'] == $row['site_id']) {
 					$indexstatus = "Unfinished";
 					$indexoption="<a href=\"admin.php?f=index&url=$row[url]\">Continue</a>";
@@ -429,31 +429,31 @@ function addcatform($parent) {
 			print "<td><a href=admin.php?f=20&site_id=$row[site_id] id=\"small_button\">Options</a></td></tr>\n";
 
 		}
-		if (mysql_num_rows($result) > 0) {
+		if (mysqli_num_rows($result) > 0) {
 			print "</table></td></tr></table></div>";
 		}
 	}
 
 	function deletecat($cat_id) {
-		global $mysql_table_prefix;
+		global $mysqli_table_prefix;
 		$list = implode(",", get_cats($cat_id));
-		mysqli_query($GLOBALS['connect'], "delete from ".$mysql_table_prefix."categories where category_id in ($list)");
+		mysqli_query($GLOBALS['connect'], "delete from ".$mysqli_table_prefix."categories where category_id in ($list)");
 		echo mysqli_error($GLOBALS['connect']);
-		mysqli_query($GLOBALS['connect'], "delete from ".$mysql_table_prefix."site_category where category_id=$cat_id");
+		mysqli_query($GLOBALS['connect'], "delete from ".$mysqli_table_prefix."site_category where category_id=$cat_id");
 		echo mysqli_error($GLOBALS['connect']);
 		return "<center><b>Category deleted.</b></center>";
 	}
 	function deletesite($site_id) {
-		global $mysql_table_prefix;
-		mysqli_query($GLOBALS['connect'], "delete from ".$mysql_table_prefix."sites where site_id=$site_id");
+		global $mysqli_table_prefix;
+		mysqli_query($GLOBALS['connect'], "delete from ".$mysqli_table_prefix."sites where site_id=$site_id");
 		echo mysqli_error($GLOBALS['connect']);
-		mysqli_query($GLOBALS['connect'], "delete from ".$mysql_table_prefix."site_category where site_id=$site_id");
+		mysqli_query($GLOBALS['connect'], "delete from ".$mysqli_table_prefix."site_category where site_id=$site_id");
 		echo mysqli_error($GLOBALS['connect']);
-		$query = "select link_id from ".$mysql_table_prefix."links where site_id=$site_id";
+		$query = "select link_id from ".$mysqli_table_prefix."links where site_id=$site_id";
 		$result = mysqli_query($GLOBALS['connect'], $query);
 		echo mysqli_error($GLOBALS['connect']);
 		$todelete = array();
-		while ($row=mysql_fetch_array($result)) {
+		while ($row=mysqli_fetch_array($result)) {
 			$todelete[]=$row['link_id'];
 		}
 
@@ -461,26 +461,26 @@ function addcatform($parent) {
 			$todelete = implode(",", $todelete);
 			for ($i=0;$i<=15; $i++) {
 				$char = dechex($i);
-				$query = "delete from ".$mysql_table_prefix."link_keyword$char where link_id in($todelete)";
+				$query = "delete from ".$mysqli_table_prefix."link_keyword$char where link_id in($todelete)";
 				mysqli_query($GLOBALS['connect'], $query);
 				echo mysqli_error($GLOBALS['connect']);
 			}
 		}
 
-		mysqli_query($GLOBALS['connect'], "delete from ".$mysql_table_prefix."links where site_id=$site_id");
+		mysqli_query($GLOBALS['connect'], "delete from ".$mysqli_table_prefix."links where site_id=$site_id");
 		echo mysqli_error($GLOBALS['connect']);
-		mysqli_query($GLOBALS['connect'], "delete from ".$mysql_table_prefix."pending where site_id=$site_id");
+		mysqli_query($GLOBALS['connect'], "delete from ".$mysqli_table_prefix."pending where site_id=$site_id");
 		echo mysqli_error($GLOBALS['connect']);
 		return "<br/><center><b>Site deleted</b></center>";
 	}
 
 	function deletePage($link_id) {
-		global $mysql_table_prefix;
-		mysqli_query($GLOBALS['connect'], "delete from ".$mysql_table_prefix."links where link_id=$link_id");
+		global $mysqli_table_prefix;
+		mysqli_query($GLOBALS['connect'], "delete from ".$mysqli_table_prefix."links where link_id=$link_id");
 		echo mysqli_error($GLOBALS['connect']);
 		for ($i=0;$i<=15; $i++) {
 			$char = dechex($i);
-			mysqli_query($GLOBALS['connect'], "delete from ".$mysql_table_prefix."link_keyword$char where link_id=$link_id");
+			mysqli_query($GLOBALS['connect'], "delete from ".$mysqli_table_prefix."link_keyword$char where link_id=$link_id");
 		}
 		echo mysqli_error($GLOBALS['connect']);
 		return "<br/><center><b>Page deleted</b></center>";
@@ -488,10 +488,10 @@ function addcatform($parent) {
 
 
 	function cleanTemp() {
-		global $mysql_table_prefix;
-		$result = mysqli_query($GLOBALS['connect'], "delete from ".$mysql_table_prefix."temp where level >= 0");
+		global $mysqli_table_prefix;
+		$result = mysqli_query($GLOBALS['connect'], "delete from ".$mysqli_table_prefix."temp where level >= 0");
 		echo mysqli_error($GLOBALS['connect']);
-		$del = mysql_affected_rows();
+		$del = mysqli_affected_rows();
 				?>
 		<div id="submenu">
 		</div><?php
@@ -499,10 +499,10 @@ function addcatform($parent) {
 	}
 
 	function clearLog() {
-		global $mysql_table_prefix;
-		$result = mysqli_query($GLOBALS['connect'], "delete from ".$mysql_table_prefix."query_log where time >= 0");
+		global $mysqli_table_prefix;
+		$result = mysqli_query($GLOBALS['connect'], "delete from ".$mysqli_table_prefix."query_log where time >= 0");
 		echo mysqli_error($GLOBALS['connect']);
-		$del = mysql_affected_rows();
+		$del = mysqli_affected_rows();
 		?>
 		<div id="submenu">
 		</div><?php
@@ -511,44 +511,44 @@ function addcatform($parent) {
 
 
 	function cleanLinks() {
-		global $mysql_table_prefix;
-		$query = "select site_id from ".$mysql_table_prefix."sites";
+		global $mysqli_table_prefix;
+		$query = "select site_id from ".$mysqli_table_prefix."sites";
 		$result = mysqli_query($GLOBALS['connect'], $query);
 		echo mysqli_error($GLOBALS['connect']);
 		$todelete = array();
-		if (mysql_num_rows($result)>0) {
-			while ($row=mysql_fetch_array($result)) {
+		if (mysqli_num_rows($result)>0) {
+			while ($row=mysqli_fetch_array($result)) {
 				$todelete[]=$row['site_id'];
 			}
 			$todelete = implode(",", $todelete);
 			$sql_end = " not in ($todelete)";
 		}
 
-		$result = mysqli_query($GLOBALS['connect'], "select link_id from ".$mysql_table_prefix."links where site_id".$sql_end);
+		$result = mysqli_query($GLOBALS['connect'], "select link_id from ".$mysqli_table_prefix."links where site_id".$sql_end);
 		echo mysqli_error($GLOBALS['connect']);
-		$del = mysql_num_rows($result);
-		while ($row=mysql_fetch_array($result)) {
+		$del = mysqli_num_rows($result);
+		while ($row=mysqli_fetch_array($result)) {
 			$link_id=$row[link_id];
 			for ($i=0;$i<=15; $i++) {
 				$char = dechex($i);
-				mysqli_query($GLOBALS['connect'], "delete from ".$mysql_table_prefix."link_keyword$char where link_id=$link_id");
+				mysqli_query($GLOBALS['connect'], "delete from ".$mysqli_table_prefix."link_keyword$char where link_id=$link_id");
 				echo mysqli_error($GLOBALS['connect']);
 			}
-			mysqli_query($GLOBALS['connect'], "delete from ".$mysql_table_prefix."links where link_id=$link_id");
+			mysqli_query($GLOBALS['connect'], "delete from ".$mysqli_table_prefix."links where link_id=$link_id");
 			echo mysqli_error($GLOBALS['connect']);
 		}
 
-		$result = mysqli_query($GLOBALS['connect'], "select link_id from ".$mysql_table_prefix."links where site_id is NULL");
+		$result = mysqli_query($GLOBALS['connect'], "select link_id from ".$mysqli_table_prefix."links where site_id is NULL");
 		echo mysqli_error($GLOBALS['connect']);
-		$del += mysql_num_rows($result);
-		while ($row=mysql_fetch_array($result)) {
+		$del += mysqli_num_rows($result);
+		while ($row=mysqli_fetch_array($result)) {
 			$link_id=$row[link_id];
 			for ($i=0;$i<=15; $i++) {
 				$char = dechex($i);
-				mysqli_query($GLOBALS['connect'], "delete from ".$mysql_table_prefix."link_keyword$char where link_id=$link_id");
+				mysqli_query($GLOBALS['connect'], "delete from ".$mysqli_table_prefix."link_keyword$char where link_id=$link_id");
 				echo mysqli_error($GLOBALS['connect']);
 			}
-			mysqli_query($GLOBALS['connect'], "delete from ".$mysql_table_prefix."links where link_id=$link_id");
+			mysqli_query($GLOBALS['connect'], "delete from ".$mysqli_table_prefix."links where link_id=$link_id");
 			echo mysqli_error($GLOBALS['connect']);
 		}
 		?>
@@ -558,20 +558,20 @@ function addcatform($parent) {
 	}
 
 	function cleanKeywords() {
-		global $mysql_table_prefix;
-		$query = "select keyword_id, keyword from ".$mysql_table_prefix."keywords";
+		global $mysqli_table_prefix;
+		$query = "select keyword_id, keyword from ".$mysqli_table_prefix."keywords";
 		$result = mysqli_query($GLOBALS['connect'], $query);
 		echo mysqli_error($GLOBALS['connect']);
 		$del = 0;
-		while ($row=mysql_fetch_array($result)) {
+		while ($row=mysqli_fetch_array($result)) {
 			$keyId=$row['keyword_id'];
 			$keyword=$row['keyword'];
 			$wordmd5 = substr(md5($keyword), 0, 1);
-			$query = "select keyword_id from ".$mysql_table_prefix."link_keyword$wordmd5 where keyword_id = $keyId";
+			$query = "select keyword_id from ".$mysqli_table_prefix."link_keyword$wordmd5 where keyword_id = $keyId";
 			$result2 = mysqli_query($GLOBALS['connect'], $query);
 			echo mysqli_error($GLOBALS['connect']);
-			if (mysql_num_rows($result2) < 1) {
-				mysqli_query($GLOBALS['connect'], "delete from ".$mysql_table_prefix."keywords where keyword_id=$keyId");
+			if (mysqli_num_rows($result2) < 1) {
+				mysqli_query($GLOBALS['connect'], "delete from ".$mysqli_table_prefix."keywords where keyword_id=$keyId");
 				echo mysqli_error($GLOBALS['connect']);
 				$del++;
 			}
@@ -582,39 +582,39 @@ function addcatform($parent) {
 	}
 
 	function getStatistics() {
-		global $mysql_table_prefix;
+		global $mysqli_table_prefix;
 		$stats = array();
-		$keywordQuery = "select count(keyword_id) from ".$mysql_table_prefix."keywords";
-		$linksQuery = "select count(url) from ".$mysql_table_prefix."links";
-		$siteQuery = "select count(site_id) from ".$mysql_table_prefix."sites";
-		$categoriesQuery = "select count(category_id) from ".$mysql_table_prefix."categories";
+		$keywordQuery = "select count(keyword_id) from ".$mysqli_table_prefix."keywords";
+		$linksQuery = "select count(url) from ".$mysqli_table_prefix."links";
+		$siteQuery = "select count(site_id) from ".$mysqli_table_prefix."sites";
+		$categoriesQuery = "select count(category_id) from ".$mysqli_table_prefix."categories";
 
 		$result = mysqli_query($GLOBALS['connect'], $keywordQuery);
 		echo mysqli_error($GLOBALS['connect']);
-		if ($row=mysql_fetch_array($result)) {
+		if ($row=mysqli_fetch_array($result)) {
 			$stats['keywords']=$row[0];
 		}
 		$result = mysqli_query($GLOBALS['connect'], $linksQuery);
 		echo mysqli_error($GLOBALS['connect']);
-		if ($row=mysql_fetch_array($result)) {
+		if ($row=mysqli_fetch_array($result)) {
 			$stats['links']=$row[0];
 		}
 		for ($i=0;$i<=15; $i++) {
 			$char = dechex($i);
-			$result = mysqli_query($GLOBALS['connect'], "select count(link_id) from ".$mysql_table_prefix."link_keyword$char");
+			$result = mysqli_query($GLOBALS['connect'], "select count(link_id) from ".$mysqli_table_prefix."link_keyword$char");
 			echo mysqli_error($GLOBALS['connect']);
-			if ($row=mysql_fetch_array($result)) {
+			if ($row=mysqli_fetch_array($result)) {
 				$stats['index']+=$row[0];
 			}
 		}
 		$result = mysqli_query($GLOBALS['connect'], $siteQuery);
 		echo mysqli_error($GLOBALS['connect']);
-		if ($row=mysql_fetch_array($result)) {
+		if ($row=mysqli_fetch_array($result)) {
 			$stats['sites']=$row[0];
 		}
 		$result = mysqli_query($GLOBALS['connect'], $categoriesQuery);
 		echo mysqli_error($GLOBALS['connect']);
-		if ($row=mysql_fetch_array($result)) {
+		if ($row=mysqli_fetch_array($result)) {
 			$stats['categories']=$row[0];
 		}
 		return $stats;
@@ -623,28 +623,28 @@ function addcatform($parent) {
 
 
 	function addsite ($url, $title, $short_desc, $cat) {
-		global $mysql_table_prefix;
+		global $mysqli_table_prefix;
 		$short_desc = addslashes($short_desc);
 		$title = addslashes($title);
 		$compurl=parse_url("".$url);
 		if ($compurl['path']=='')
 			$url=$url."/";
-		$result = mysqli_query($GLOBALS['connect'], "select site_ID from ".$mysql_table_prefix."sites where url='$url'");
+		$result = mysqli_query($GLOBALS['connect'], "select site_ID from ".$mysqli_table_prefix."sites where url='$url'");
 		echo mysqli_error($GLOBALS['connect']);
-		$rows = mysql_numrows($result);
+		$rows = mysqli_numrows($result);
 		if ($rows==0 ) {
-			mysqli_query($GLOBALS['connect'], "INSERT INTO ".$mysql_table_prefix."sites (url, title, short_desc) VALUES ('$url', '$title', '$short_desc')");
+			mysqli_query($GLOBALS['connect'], "INSERT INTO ".$mysqli_table_prefix."sites (url, title, short_desc) VALUES ('$url', '$title', '$short_desc')");
 			echo mysqli_error($GLOBALS['connect']);
-			$result = mysqli_query($GLOBALS['connect'], "select site_ID from ".$mysql_table_prefix."sites where url='$url'");
+			$result = mysqli_query($GLOBALS['connect'], "select site_ID from ".$mysqli_table_prefix."sites where url='$url'");
 			echo mysqli_error($GLOBALS['connect']);
-			$row = mysql_fetch_row($result);
+			$row = mysqli_fetch_row($result);
 			$site_id = $row[0];
-			$result=mysqli_query($GLOBALS['connect'], "select category_id from ".$mysql_table_prefix."categories");
+			$result=mysqli_query($GLOBALS['connect'], "select category_id from ".$mysqli_table_prefix."categories");
 			echo mysqli_error($GLOBALS['connect']);
-			while ($row=mysql_fetch_row($result)) {
+			while ($row=mysqli_fetch_row($result)) {
 				$cat_id=$row[0];
 				if ($cat[$cat_id]=='on') {
-					mysqli_query($GLOBALS['connect'], "INSERT INTO ".$mysql_table_prefix."site_category (site_id, category_id) values ('$site_id', '$cat_id')");
+					mysqli_query($GLOBALS['connect'], "INSERT INTO ".$mysqli_table_prefix."site_category (site_id, category_id) values ('$site_id', '$cat_id')");
 					echo mysqli_error($GLOBALS['connect']);
 				}
 	 		}
@@ -663,7 +663,7 @@ function addcatform($parent) {
 
 
 	function indexscreen ($url, $reindex) {
-		global $mysql_table_prefix;
+		global $mysqli_table_prefix;
 		$check = "";
 		$levelchecked = "checked";
 		$spider_depth = 2;
@@ -672,11 +672,11 @@ function addcatform($parent) {
 			$advurl = "";
 		} else {
 			$advurl = $url;
-			$result = mysqli_query($GLOBALS['connect'], "select spider_depth, required, disallowed, can_leave_domain from ".$mysql_table_prefix."sites " .
+			$result = mysqli_query($GLOBALS['connect'], "select spider_depth, required, disallowed, can_leave_domain from ".$mysqli_table_prefix."sites " .
 					"where url='$url'");
 			echo mysqli_error($GLOBALS['connect']);
-			if (mysql_num_rows($result) > 0) {
-				$row = mysql_fetch_row($result);
+			if (mysqli_num_rows($result) > 0) {
+				$row = mysqli_fetch_row($result);
 				$spider_depth = $row[0];
 				if ($spider_depth == -1 ) {
 					$fullchecked = "checked";
@@ -734,19 +734,19 @@ function addcatform($parent) {
 	}
 
 	function siteScreen($site_id, $message)  {
-		global $mysql_table_prefix;
-		$result = mysqli_query($GLOBALS['connect'], "SELECT site_id, url, title, short_desc, indexdate from ".$mysql_table_prefix."sites where site_id=$site_id");
+		global $mysqli_table_prefix;
+		$result = mysqli_query($GLOBALS['connect'], "SELECT site_id, url, title, short_desc, indexdate from ".$mysqli_table_prefix."sites where site_id=$site_id");
 		echo mysqli_error($GLOBALS['connect']);
-		$row=mysql_fetch_array($result);
+		$row=mysqli_fetch_array($result);
 		$url = replace_ampersand($row[url]);
 		if ($row['indexdate']=='') {
 			$indexstatus="<font color=\"red\">Not indexed</font>";
 			$indexoption="<a href=\"admin.php?f=index&url=$url\">Index</a>";
 		} else {
 			$site_id = $row['site_id'];
-			$result2 = mysqli_query($GLOBALS['connect'], "SELECT site_id from ".$mysql_table_prefix."pending where site_id =$site_id");
+			$result2 = mysqli_query($GLOBALS['connect'], "SELECT site_id from ".$mysqli_table_prefix."pending where site_id =$site_id");
 			echo mysqli_error($GLOBALS['connect']);
-			$row2=mysql_fetch_array($result2);
+			$row2=mysqli_fetch_array($result2);
 			if ($row2['site_id'] == $row['site_id']) {
 				$indexstatus = "Unfinished";
 				$indexoption="<a href=\"admin.php?f=index&url=$url\">Continue indexing</a>";
@@ -808,55 +808,55 @@ function addcatform($parent) {
 
 
 	function siteStats($site_id) {
-		global $mysql_table_prefix;
-		$result = mysqli_query($GLOBALS['connect'], "select url from ".$mysql_table_prefix."sites where site_id=$site_id");
+		global $mysqli_table_prefix;
+		$result = mysqli_query($GLOBALS['connect'], "select url from ".$mysqli_table_prefix."sites where site_id=$site_id");
 		echo mysqli_error($GLOBALS['connect']);
-		if ($row=mysql_fetch_array($result)) {
+		if ($row=mysqli_fetch_array($result)) {
 			$url=$row[0];
 
-			$lastIndexQuery = "SELECT indexdate from ".$mysql_table_prefix."sites where site_id = $site_id";
-			$sumSizeQuery = "select sum(length(fulltxt)) from ".$mysql_table_prefix."links where site_id = $site_id";
-			$siteSizeQuery = "select sum(size) from ".$mysql_table_prefix."links where site_id = $site_id";
-			$linksQuery = "select count(*) from ".$mysql_table_prefix."links where site_id = $site_id";
+			$lastIndexQuery = "SELECT indexdate from ".$mysqli_table_prefix."sites where site_id = $site_id";
+			$sumSizeQuery = "select sum(length(fulltxt)) from ".$mysqli_table_prefix."links where site_id = $site_id";
+			$siteSizeQuery = "select sum(size) from ".$mysqli_table_prefix."links where site_id = $site_id";
+			$linksQuery = "select count(*) from ".$mysqli_table_prefix."links where site_id = $site_id";
 
 			$result = mysqli_query($GLOBALS['connect'], $lastIndexQuery);
 			echo mysqli_error($GLOBALS['connect']);
-			if ($row=mysql_fetch_array($result)) {
+			if ($row=mysqli_fetch_array($result)) {
 				$stats['lastIndex']=$row[0];
 			}
 
 			$result = mysqli_query($GLOBALS['connect'], $sumSizeQuery);
 			echo mysqli_error($GLOBALS['connect']);
-			if ($row=mysql_fetch_array($result)) {
+			if ($row=mysqli_fetch_array($result)) {
 				$stats['sumSize']=$row[0];
 			}
 			$result = mysqli_query($GLOBALS['connect'], $linksQuery);
 			echo mysqli_error($GLOBALS['connect']);
-			if ($row=mysql_fetch_array($result)) {
+			if ($row=mysqli_fetch_array($result)) {
 				$stats['links']=$row[0];
 			}
 
 			for ($i=0;$i<=15; $i++) {
 				$char = dechex($i);
-				$result = mysqli_query($GLOBALS['connect'], "select count(*) from ".$mysql_table_prefix."links, ".$mysql_table_prefix."link_keyword$char where ".$mysql_table_prefix."links.link_id=".$mysql_table_prefix."link_keyword$char.link_id and ".$mysql_table_prefix."links.site_id = $site_id");
+				$result = mysqli_query($GLOBALS['connect'], "select count(*) from ".$mysqli_table_prefix."links, ".$mysqli_table_prefix."link_keyword$char where ".$mysqli_table_prefix."links.link_id=".$mysqli_table_prefix."link_keyword$char.link_id and ".$mysqli_table_prefix."links.site_id = $site_id");
 				echo mysqli_error($GLOBALS['connect']);
-				if ($row=mysql_fetch_array($result)) {
+				if ($row=mysqli_fetch_array($result)) {
 					$stats['index']+=$row[0];
 				}
 			}
 			for ($i=0;$i<=15; $i++) {
 				$char = dechex($i);
-				$wordQuery = "select count(distinct keyword) from ".$mysql_table_prefix."keywords, ".$mysql_table_prefix."links, ".$mysql_table_prefix."link_keyword$char where ".$mysql_table_prefix."links.link_id=".$mysql_table_prefix."link_keyword$char.link_id and ".$mysql_table_prefix."links.site_id = $site_id and ".$mysql_table_prefix."keywords.keyword_id = ".$mysql_table_prefix."link_keyword$char.keyword_id";
+				$wordQuery = "select count(distinct keyword) from ".$mysqli_table_prefix."keywords, ".$mysqli_table_prefix."links, ".$mysqli_table_prefix."link_keyword$char where ".$mysqli_table_prefix."links.link_id=".$mysqli_table_prefix."link_keyword$char.link_id and ".$mysqli_table_prefix."links.site_id = $site_id and ".$mysqli_table_prefix."keywords.keyword_id = ".$mysqli_table_prefix."link_keyword$char.keyword_id";
 				$result = mysqli_query($GLOBALS['connect'], $wordQuery);
 				echo mysqli_error($GLOBALS['connect']);
-				if ($row=mysql_fetch_array($result)) {
+				if ($row=mysqli_fetch_array($result)) {
 					$stats['words']+=$row[0];
 				}
 			}
 
 			$result = mysqli_query($GLOBALS['connect'], $siteSizeQuery);
 			echo mysqli_error($GLOBALS['connect']);
-			if ($row=mysql_fetch_array($result)) {
+			if ($row=mysqli_fetch_array($result)) {
 				$stats['siteSize']=$row[0];
 			}
 			if ($stats['siteSize']=="")
@@ -877,20 +877,20 @@ function addcatform($parent) {
 	}
 
 	function browsePages($site_id, $start, $filter, $per_page) {
-		global $mysql_table_prefix;
-		$result = mysqli_query($GLOBALS['connect'], "select url from ".$mysql_table_prefix."sites where site_id=$site_id");
+		global $mysqli_table_prefix;
+		$result = mysqli_query($GLOBALS['connect'], "select url from ".$mysqli_table_prefix."sites where site_id=$site_id");
 		echo mysqli_error($GLOBALS['connect']);
-		$row = mysql_fetch_row($result);
+		$row = mysqli_fetch_row($result);
 		$url = $row[0];
 
 		$query_add = "";
 		if ($filter != "") {
 			$query_add = "and url like '%$filter%'";
 		}
-		$linksQuery = "select count(*) from ".$mysql_table_prefix."links where site_id = $site_id $query_add";
+		$linksQuery = "select count(*) from ".$mysqli_table_prefix."links where site_id = $site_id $query_add";
 		$result = mysqli_query($GLOBALS['connect'], $linksQuery);
 		echo mysqli_error($GLOBALS['connect']);
-		$row = mysql_fetch_row($result);
+		$row = mysqli_fetch_row($result);
 		$numOfPages = $row[0];
 
 		$result = mysqli_query($GLOBALS['connect'], $linksQuery);
@@ -899,7 +899,7 @@ function addcatform($parent) {
 		$to = min(($start)*10, $numOfPages);
 
 
-		$linksQuery = "select link_id, url from ".$mysql_table_prefix."links where site_id = $site_id and url like '%$filter%' order by url limit $from, $per_page";
+		$linksQuery = "select link_id, url from ".$mysqli_table_prefix."links where site_id = $site_id and url like '%$filter%' order by url limit $from, $per_page";
 		$result = mysqli_query($GLOBALS['connect'], $linksQuery);
 		echo mysqli_error($GLOBALS['connect']);
 		?>
@@ -923,7 +923,7 @@ function addcatform($parent) {
 
 		<?php
 		$class = "white";
-		while ($row = mysql_fetch_array($result)) {
+		while ($row = mysqli_fetch_array($result)) {
 			if ($class =="white")
 				$class = "grey";
 			else
@@ -957,15 +957,15 @@ function addcatform($parent) {
 
 
 	function cleanForm () {
-		global $mysql_table_prefix;
-		$result = mysqli_query($GLOBALS['connect'], "select count(*) from ".$mysql_table_prefix."query_log");
+		global $mysqli_table_prefix;
+		$result = mysqli_query($GLOBALS['connect'], "select count(*) from ".$mysqli_table_prefix."query_log");
 		echo mysqli_error($GLOBALS['connect']);
-		if ($row=mysql_fetch_array($result)) {
+		if ($row=mysqli_fetch_array($result)) {
 			$log=$row[0];
 		}
-		$result = mysqli_query($GLOBALS['connect'], "select count(*) from ".$mysql_table_prefix."temp");
+		$result = mysqli_query($GLOBALS['connect'], "select count(*) from ".$mysqli_table_prefix."temp");
 		echo mysqli_error($GLOBALS['connect']);
-		if ($row=mysql_fetch_array($result)) {
+		if ($row=mysqli_fetch_array($result)) {
 			$temp=$row[0];
 		}
 
@@ -987,7 +987,7 @@ function addcatform($parent) {
 	}
 
 	function statisticsForm ($type) {
-		global $mysql_table_prefix, $log_dir;
+		global $mysqli_table_prefix, $log_dir;
 		?>
 		<div id='submenu'>
 		<ul>
@@ -1001,18 +1001,18 @@ function addcatform($parent) {
 
 		<?php
 			if ($type == "") {
-				$cachedSumQuery = "select sum(length(fulltxt)) from ".$mysql_table_prefix."links";
-				$result=mysqli_query($GLOBALS['connect'], "select sum(length(fulltxt)) from ".$mysql_table_prefix."links");
+				$cachedSumQuery = "select sum(length(fulltxt)) from ".$mysqli_table_prefix."links";
+				$result=mysqli_query($GLOBALS['connect'], "select sum(length(fulltxt)) from ".$mysqli_table_prefix."links");
 				echo mysqli_error($GLOBALS['connect']);
-				if ($row=mysql_fetch_array($result)) {
+				if ($row=mysqli_fetch_array($result)) {
 					$cachedSumSize = $row[0];
 				}
 				$cachedSumSize = number_format($cachedSumSize / 1024, 2);
 
-				$sitesSizeQuery = "select sum(size) from ".$mysql_table_prefix."links";
+				$sitesSizeQuery = "select sum(size) from ".$mysqli_table_prefix."links";
 				$result=mysqli_query($GLOBALS['connect'], "$sitesSizeQuery");
 				echo mysqli_error($GLOBALS['connect']);
-				if ($row=mysql_fetch_array($result)) {
+				if ($row=mysqli_fetch_array($result)) {
 					$sitesSize = $row[0];
 				}
 				$sitesSize = number_format($sitesSize, 2);
@@ -1033,9 +1033,9 @@ function addcatform($parent) {
 				print "<br/><div align=\"center\"><table cellspacing =\"0\" cellpadding=\"0\" class=\"darkgrey\"><tr><td><table cellpadding=\"3\" cellspacing = \"1\"><tr  class=\"grey\"><td><b>Keyword</b></td><td><b>Occurrences</b></td></tr>";
 				for ($i=0;$i<=15; $i++) {
 					$char = dechex($i);
-					$result=mysqli_query($GLOBALS['connect'], "select keyword, count(".$mysql_table_prefix."link_keyword$char.keyword_id) as x from ".$mysql_table_prefix."keywords, ".$mysql_table_prefix."link_keyword$char where ".$mysql_table_prefix."keywords.keyword_id = ".$mysql_table_prefix."link_keyword$char.keyword_id group by keyword order by x desc limit 30");
+					$result=mysqli_query($GLOBALS['connect'], "select keyword, count(".$mysqli_table_prefix."link_keyword$char.keyword_id) as x from ".$mysqli_table_prefix."keywords, ".$mysqli_table_prefix."link_keyword$char where ".$mysqli_table_prefix."keywords.keyword_id = ".$mysqli_table_prefix."link_keyword$char.keyword_id group by keyword order by x desc limit 30");
 					echo mysqli_error($GLOBALS['connect']);
-					while (($row=mysql_fetch_row($result))) {
+					while (($row=mysqli_fetch_row($result))) {
 						$topwords[$row[0]] = $row[1];
 					}
 				}
@@ -1063,9 +1063,9 @@ function addcatform($parent) {
 				   <b>Page</b></td>
 				   <td><b>Text size</b></td></tr>
 				<?php
-				$result=mysqli_query($GLOBALS['connect'], "select ".$mysql_table_prefix."links.link_id, url, length(fulltxt)  as x from ".$mysql_table_prefix."links order by x desc limit 20");
+				$result=mysqli_query($GLOBALS['connect'], "select ".$mysqli_table_prefix."links.link_id, url, length(fulltxt)  as x from ".$mysqli_table_prefix."links order by x desc limit 20");
 				echo mysqli_error($GLOBALS['connect']);
-				while ($row=mysql_fetch_row($result)) {
+				while ($row=mysqli_fetch_row($result)) {
 					if ($class =="white")
 						$class = "grey";
 					else
@@ -1080,9 +1080,9 @@ function addcatform($parent) {
 			if ($type=='top_searches') {
 				$class = "grey";
 				print "<br/><div align=\"center\"><table cellspacing =\"0\" cellpadding=\"0\" class=\"darkgrey\"><tr><td><table cellpadding=\"3\" cellspacing = \"1\"><tr  class=\"grey\"><td><b>Query</b></td><td><b>Count</b></td><td><b> Average results</b></td><td><b>Last queried</b></td></tr>";
-				$result=mysqli_query($GLOBALS['connect'], "select query, count(*) as c, date_format(max(time), '%Y-%m-%d %H:%i:%s'), avg(results)  from ".$mysql_table_prefix."query_log group by query order by c desc");
+				$result=mysqli_query($GLOBALS['connect'], "select query, count(*) as c, date_format(max(time), '%Y-%m-%d %H:%i:%s'), avg(results)  from ".$mysqli_table_prefix."query_log group by query order by c desc");
 				echo mysqli_error($GLOBALS['connect']);
-				while ($row=mysql_fetch_row($result)) {
+				while ($row=mysqli_fetch_row($result)) {
 					if ($class =="white")
 						$class = "grey";
 					else
@@ -1099,9 +1099,9 @@ function addcatform($parent) {
 			if ($type=='log') {
 				$class = "grey";
 				print "<br/><div align=\"center\"><table cellspacing =\"0\" cellpadding=\"0\" class=\"darkgrey\"><tr><td><table cellpadding=\"3\" cellspacing = \"1\"><tr  class=\"grey\"><td align=\"center\"><b>Query</b></td><td align=\"center\"><b>Results</b></td><td align=\"center\"><b>Queried at</b></td><td align=\"center\"><b>Time taken</b></td></tr>";
-				$result=mysqli_query($GLOBALS['connect'], "select query,  date_format(time, '%Y-%m-%d %H:%i:%s'), elapsed, results from ".$mysql_table_prefix."query_log order by time desc");
+				$result=mysqli_query($GLOBALS['connect'], "select query,  date_format(time, '%Y-%m-%d %H:%i:%s'), elapsed, results from ".$mysqli_table_prefix."query_log order by time desc");
 				echo mysqli_error($GLOBALS['connect']);
-				while ($row=mysql_fetch_row($result)) {
+				while ($row=mysqli_fetch_row($result)) {
 					if ($class =="white")
 						$class = "grey";
 					else
@@ -1154,9 +1154,9 @@ function addcatform($parent) {
 			if ($compurl['path']=='')
 				$url=$url."/";
 
-			$result = mysqli_query($GLOBALS['connect'], "select site_id from ".$mysql_table_prefix."sites where url='$url'");
+			$result = mysqli_query($GLOBALS['connect'], "select site_id from ".$mysqli_table_prefix."sites where url='$url'");
 			echo mysqli_error($GLOBALS['connect']);
-			$row = mysql_fetch_row($result);
+			$row = mysqli_fetch_row($result);
 			if ($site_id != "")
 				siteScreen($site_id, $message);
 			else

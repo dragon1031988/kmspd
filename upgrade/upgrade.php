@@ -12,8 +12,8 @@ if (!$result) {
 }
 
 $old = 0;
-while ($row = mysql_fetch_row($result)) {
-	if ($row[0] == $mysql_table_prefix."link_keyword") {
+while ($row = mysqli_fetch_row($result)) {
+	if ($row[0] == $mysqli_table_prefix."link_keyword") {
 		$old = 1;
 		break;
 	}
@@ -26,7 +26,7 @@ if ($old == 0) {
 $error = 0;
 for ($i=0;$i<=15; $i++) {
 	$char = dechex($i);
-	mysqli_query($GLOBALS['connect'], "create table `".$mysql_table_prefix."link_keyword$char` (
+	mysqli_query($GLOBALS['connect'], "create table `".$mysqli_table_prefix."link_keyword$char` (
 		link_id int not null,
 		keyword_id int not null,
 		weight int(3),
@@ -34,41 +34,41 @@ for ($i=0;$i<=15; $i++) {
 		key linkid(link_id),
 		key keyid(keyword_id))");
 
-	if (mysql_errno() > 0) {
+	if (mysqli_errno() > 0) {
 		print "Error: ";
 		print mysqli_error($GLOBALS['connect']);
 		print "<br>\n";
-		$error += mysql_errno();
+		$error += mysqli_errno();
 	}
 }
 
-mysqli_query($GLOBALS['connect'], "create table `".$mysql_table_prefix."domains` (
+mysqli_query($GLOBALS['connect'], "create table `".$mysqli_table_prefix."domains` (
 	domain_id int auto_increment primary key not null,
 	domain varchar(255))");
 
-if (mysql_errno() > 0) {
+if (mysqli_errno() > 0) {
 	print "Error: ";
 	print mysqli_error($GLOBALS['connect']);
 	print "<br>\n";
-	$error += mysql_errno();
+	$error += mysqli_errno();
 }
 
 
-mysqli_query($GLOBALS['connect'], "alter table `".$mysql_table_prefix."links` add key md5key(md5sum(16))");
-if (mysql_errno() > 0) {
+mysqli_query($GLOBALS['connect'], "alter table `".$mysqli_table_prefix."links` add key md5key(md5sum(16))");
+if (mysqli_errno() > 0) {
 	print "Error: ";
 	print mysqli_error($GLOBALS['connect']);
 	print "<br>\n";
-	$error += mysql_errno();
+	$error += mysqli_errno();
 }
 
-mysqli_query($GLOBALS['connect'], "alter table `".$mysql_table_prefix."query_log` add key querykey(query)");
+mysqli_query($GLOBALS['connect'], "alter table `".$mysqli_table_prefix."query_log` add key querykey(query)");
 
-if (mysql_errno() > 0) {
+if (mysqli_errno() > 0) {
 	print "Error: ";
 	print mysqli_error($GLOBALS['connect']);
 	print "<br>\n";
-	$error += mysql_errno();
+	$error += mysqli_errno();
 }
 
 if ($error >0) {
@@ -77,22 +77,22 @@ if ($error >0) {
 }
 
 
-$query = "select link_id, keyword_id, weight from ".$mysql_table_prefix."link_keyword";
+$query = "select link_id, keyword_id, weight from ".$mysqli_table_prefix."link_keyword";
 $result = mysqli_query($GLOBALS['connect'], $query);
 echo mysqli_error($GLOBALS['connect']);
-while ($row=mysql_fetch_array($result)) {
+while ($row=mysqli_fetch_array($result)) {
 	$link=$row['link_id'];
 	$word_id=$row['keyword_id'];
 	$weight=$row['weight'];
 
-	$query = "select keyword from ".$mysql_table_prefix."keywords where keyword_id = $word_id";
+	$query = "select keyword from ".$mysqli_table_prefix."keywords where keyword_id = $word_id";
 
 
 	$result2 = mysqli_query($GLOBALS['connect'], $query);
-	if ($row2=mysql_fetch_array($result2)) {
+	if ($row2=mysqli_fetch_array($result2)) {
 		$word = $row2['keyword'];
 		$wordmd5 = substr(md5($word), 0, 1);
-		$query = "insert into ".$mysql_table_prefix."link_keyword$wordmd5 (link_id, keyword_id, weight) values($link, $word_id, $weight)";
+		$query = "insert into ".$mysqli_table_prefix."link_keyword$wordmd5 (link_id, keyword_id, weight) values($link, $word_id, $weight)";
 		mysqli_query($GLOBALS['connect'], $query);
 		echo mysqli_error($GLOBALS['connect']);
 	}
@@ -100,12 +100,12 @@ while ($row=mysql_fetch_array($result)) {
 }
 
 
-$query = "select link_id, url from ".$mysql_table_prefix."links";
+$query = "select link_id, url from ".$mysqli_table_prefix."links";
 $result = mysqli_query($GLOBALS['connect'], $query);
 echo mysqli_error($GLOBALS['connect']);
 
 $found_domains = array();
-while ($row=mysql_fetch_array($result)) {
+while ($row=mysqli_fetch_array($result)) {
 	$link_id=$row['link_id'];
 	$url=$row['url'];
 	$parsed = parse_url($url);
@@ -114,17 +114,17 @@ while ($row=mysql_fetch_array($result)) {
 	if ($found_domains[$domain]!="") {
 		$domain_id = $found_domains[$domain];
 	} else {
-		$query = "insert into ".$mysql_table_prefix."domains (domain) values('$domain')";
+		$query = "insert into ".$mysqli_table_prefix."domains (domain) values('$domain')";
 		mysqli_query($GLOBALS['connect'], $query);
 		echo mysqli_error($GLOBALS['connect']);
-		$domain_id = mysql_insert_id();
+		$domain_id = mysqli_insert_id();
 		$found_domains[$domain] = $domain_id;
 	}
 
 
 	for ($i=0;$i<=15; $i++) {
 		$char = dechex($i);
-		mysqli_query($GLOBALS['connect'], "update ".$mysql_table_prefix."link_keyword$char set domain='$domain_id' where link_id = $link_id");
+		mysqli_query($GLOBALS['connect'], "update ".$mysqli_table_prefix."link_keyword$char set domain='$domain_id' where link_id = $link_id");
 		echo mysqli_error($GLOBALS['connect']);
 	}
 }
